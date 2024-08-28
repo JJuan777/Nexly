@@ -173,6 +173,8 @@ def edit_post(request, post_id):
 from django.shortcuts import render, get_object_or_404
 from .models import User  # Importa el modelo de usuario si es necesario
 
+from django.templatetags.static import static  # Importar el tag static
+
 @login_required
 def profile_view(request, nombre):
     # Verificar si el usuario existe
@@ -223,8 +225,12 @@ def profile_view(request, nombre):
         form = PostForm()
         comment_form = CommentForm()
 
-    # Obtener la URL de la imagen de perfil del usuario
+    # Obtener las URLs de las imágenes de perfil y banner del usuario
     profile_picture_url = user.profile_picture.url if user.profile_picture else None
+    banner_picture_url = user.banner_picture.url if user.banner_picture else None
+
+    # Agregar la URL de la imagen de banner por defecto
+    default_banner_url = static('images/default-banner.jpg')
 
     context = {
         'nombre': user.nombre,
@@ -235,10 +241,13 @@ def profile_view(request, nombre):
         'accepted_follow_requests_count': accepted_follow_requests_count,
         'followed_count': followed_count,
         'posts_count': posts_count,
-        'is_following': is_following,  # Agregar estado de seguimiento
-        'profile_pictureP': profile_picture_url,  # Agregar la URL de la imagen de perfil
+        'is_following': is_following,
+        'profile_pictureP': profile_picture_url,
+        'banner_pictureP': banner_picture_url,
+        'default_banner_url': default_banner_url,  # Agregar la URL de la imagen de banner por defecto
     }
     return render(request, 'profile.html', context)
+
 
 @login_required
 def send_follow_request(request, user_id):

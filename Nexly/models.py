@@ -25,6 +25,7 @@ class User(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)  # Campo para la imagen de perfil
+    banner_picture = models.ImageField(upload_to='banner_pictures/', null=True, blank=True)  # Campo para la imagen de banner
 
     objects = UserManager()
 

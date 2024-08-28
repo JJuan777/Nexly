@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import User, Post, Like, Comment, CommentLike, FollowRequest
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('iduser', 'correo', 'nombre', 'profile_picture', 'is_admin', 'is_active')
+    list_display = ('iduser', 'correo', 'nombre', 'profile_picture', 'banner_picture', 'is_admin', 'is_active')
     search_fields = ('correo', 'nombre')
     list_filter = ('is_admin', 'is_active')
     ordering = ('correo',)
