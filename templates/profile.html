@@ -1,0 +1,288 @@
+{% extends 'layoutUser.html' %}
+{% load static %}
+{% block title %}Nexly: {{ nombre }}{% endblock %}
+
+{% block content %}
+<div class="nexly-container">
+    <!-- Sección de banner y foto de perfil -->
+    <div class="position-relative mb-4">
+        <!-- Banner -->
+        <div class="banner-container">
+            <img src="https://via.placeholder.com/1200x300" class="img-fluid" alt="Banner de portada" style="width: 100%; height: auto;">
+        </div>
+        <!-- Imagen de perfil -->
+        <div class="profile-picture-container position-absolute top-100 start-50 translate-middle">
+            {% if profile_pictureP %}
+                <img src="{{ profile_pictureP }}" class="rounded-circle border border-white" alt="Imagen de perfil" style="width: 150px; height: 150px; object-fit: cover;">
+            {% else %}
+                <!-- Mostrar una imagen por defecto si no hay imagen de perfil -->
+                <img src="{% static 'images/imagenDefecto.png' %}" class="rounded-circle border border-white" alt="Imagen por defecto" style="width: 150px; height: 150px; object-fit: cover;">
+            {% endif %}
+        </div>
+        
+              
+    </div>
+
+    <!-- Espacio debajo de la imagen de perfil -->
+     <br>
+    <div class="mt-5">
+        <h1>{{ nombre }}</h1>
+    </div>
+    <!-- Aquí puedes añadir más detalles del perfil -->
+     
+    <!-- Espacio debajo de la imagen de perfil -->
+
+        <!-- Contador de seguidores, seguidos y publicaciones -->
+        <div class="d-flex justify-content-around my-4">
+            <div class="count-box text-center">
+                <h5>Seguidores</h5>
+                <p class="display-7">{{ accepted_follow_requests_count }}</p>
+            </div>
+            <div class="count-box text-center">
+                <h5>Seguidos</h5>
+                <p class="display-7">{{ followed_count }}</p>
+            </div>
+            <div class="count-box text-center">
+                <h5>Publicaciones</h5>
+                <p class="display-7">{{ posts_count }}</p>
+            </div>
+        </div>
+
+        {% if request.user.iduser != iduserP %}
+        {% if is_following %}
+            <form action="" method="POST">
+                {% csrf_token %}
+                <button type="submit" name="unfollow" class="btn btn-secondary">Dejar de seguir</button>
+            </form>
+        {% else %}
+            <form action="{% url 'send_follow_request' iduserP %}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Enviar solicitud</button>
+            </form>
+        {% endif %}
+    {% endif %}
+
+    {% if user.nombre == nombre %}
+    <!-- Formulario para publicación -->
+    <form method="POST" class="post-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" name="post_content" class="btn btn-primary">Publicar</button>
+    </form>
+    {% endif %}
+
+    <div class="posts-container">
+        {% for post in posts %}
+            <div class="post position-relative mb-4">
+                <!-- Imagen de perfil -->
+                <div class="d-flex align-items-start mb-2">
+                    <img src="{% if post.user.profile_picture %}{{ post.user.profile_picture.url }}{% else %}{% static 'images/imagenDefecto.png' %}{% endif %}" 
+                    class="rounded-circle" 
+                    alt="Profile Picture" 
+                    width="50" 
+                    height="50" 
+                    style="object-fit: cover;">   
+                    <div class="ms-3">
+                        {% if post.original_post %}
+                        <p><strong><a href="{% url 'profile' post.user.nombre %}">{{ post.user.nombre }}</a></strong> compartió una publicación de <strong><a href="{% url 'profile' post.original_post.user.nombre %}">{{ post.original_post.user.nombre }}</a></strong>:</p>
+                        <p>{{ post.original_post.content }}</p>
+                        {% else %}
+                            <a href="{% url 'profile' post.user.nombre %}">{{ post.user.nombre }}</a>
+                            <p id="post-content-{{ post.id }}">{{ post.content }}</p>
+                        {% endif %}
+                        <!-- Mostrar tiempo relativo -->
+                        <p><small class="post-time" data-timestamp="{{ post.created_at|date:'c' }}"></small></p>
+                    </div>
+                </div>
+
+                <!-- Botones alineados -->
+                <div class="d-flex gap-2 mb-2">
+                    <a href="{% url 'like_post' post.id %}" class="btn btn-light">
+                        {% if user in post.like_set.all %}
+                            <i class="fas fa-thumbs-up"></i> 
+                            Like ({{ post.like_set.count }})
+                        {% else %}
+                            <i class="fas fa-thumbs-up"></i> 
+                            Like ({{ post.like_set.count }})
+                        {% endif %}
+                    </a>
+
+                    <button class="btn btn-light" onclick="toggleCommentForm({{ post.id }})">
+                        <i class="fas fa-comment"></i> Comentar
+                    </button>
+
+                    <a href="{% url 'share_post' post.id %}" class="btn btn-light">
+                        <i class="fas fa-share"></i>
+                        Compartir
+                    </a>
+                </div>
+
+                {% if post.user == user %}
+                    <!-- Menú desplegable -->
+                    <div class="dropdown position-absolute top-0 end-0 mt-2 me-2">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton-{{ post.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                            ⋮
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton-{{ post.id }}">
+                            <li><a class="dropdown-item" href="#" data-post-id="{{ post.id }}" onclick="showEditForm(event)">Editar</a></li>
+                            <li><a class="dropdown-item" href="{% url 'delete_post' post.id %}" onclick="return confirm('¿Estás seguro de que deseas eliminar esta publicación?')">Eliminar</a></li>
+                        </ul>
+                    </div>
+
+                    <div id="edit-form-{{ post.id }}" style="display: none;">
+                        <textarea class="form-control mb-2 textarea" id="edit-post-content-{{ post.id }}">{{ post.content }}</textarea>
+                        <button class="btn btn-primary save-post-btn" data-post-id="{{ post.id }}">Guardar Cambios</button>
+                    </div>
+                {% endif %}
+
+                <!-- Etiqueta de contador de comentarios -->
+                <p class="comment-count" data-post-id="{{ post.id }}" data-count="{{ post.comments.count }}" onclick="toggleComments({{ post.id }})">
+                    {% if post.comments.count == 0 %}
+                        <!-- No texto cuando no hay comentarios -->
+                    {% elif post.comments.count == 1 %}
+                        1 comentario
+                    {% else %}
+                        {{ post.comments.count }} comentarios
+                    {% endif %}
+                </p>
+
+                <!-- Formulario para comentarios -->
+                <div id="comment-form-{{ post.id }}" class="comment-form" style="display: none;">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ comment_form.as_p }}
+                        <input type="hidden" name="post_id" value="{{ post.id }}">
+                        <button type="submit" name="comment_content" class="btn btn-secondary">Comentar</button>
+                    </form>
+                </div>
+
+<!-- Comentarios -->
+<div id="comments-{{ post.id }}" class="comments" style="display: none;">
+    {% for comment in post.comments.all %}
+        <div class="comment d-flex align-items-start mb-3">
+            <!-- Imagen del usuario -->
+            <img src="https://via.placeholder.com/50" class="img-fluid rounded-circle me-3" alt="User Image">
+
+            <div>
+                <p><strong><a href="{% url 'profile' comment.user.nombre %}">{{ comment.user.nombre }}</a></strong> comentó:</p>
+                <p>{{ comment.content }}</p>
+                <p><small>{{ comment.time_since_commented }}</small></p>
+                <a href="{% url 'like_comment' comment.id %}" class="btn btn-light">
+                    {% if user in comment.commentlike_set.all %}
+                        <i class="fas fa-thumbs-up"></i> 
+                        Like ({{ comment.commentlike_set.count }})
+                    {% else %} 
+                        <i class="fas fa-thumbs-up"></i> 
+                        Like ({{ comment.commentlike_set.count }})
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    {% empty %}
+        <p>No hay comentarios aún.</p>
+    {% endfor %}
+</div>
+              
+        </div>
+    {% endfor %}
+</div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Guardar cambios en una publicación
+        document.querySelectorAll('.save-post-btn').forEach(btn => {
+            btn.addEventListener('click', event => {
+                const postId = event.target.dataset.postId;
+                const content = document.querySelector(`#edit-post-content-${postId}`).value;
+    
+                fetch(`/edit-post/${postId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `content=${encodeURIComponent(content)}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.content) {
+                        document.querySelector(`#post-content-${postId}`).innerText = data.content;
+                        document.querySelector(`#post-content-${postId}`).style.display = 'block';
+                        document.querySelector(`#edit-form-${postId}`).style.display = 'none';
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+    
+        // Actualizar la etiqueta de comentarios al cargar la página
+        document.querySelectorAll('.comment-count').forEach(count => {
+            const postId = count.dataset.postId;
+            const commentsDiv = document.getElementById(`comments-${postId}`);
+            if (commentsDiv.style.display === 'block') {
+                count.textContent = 'Ocultar comentarios';
+            }
+        });
+    
+        // Actualizar tiempos relativos
+        function timeAgo(date) {
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+            const interval = Math.floor(seconds / 31536000); // years
+            if (interval > 1) return `hace ${interval} años`;
+            else if (interval === 1) return 'hace un año';
+    
+            const monthInterval = Math.floor(seconds / 2592000); // months
+            if (monthInterval > 1) return `hace ${monthInterval} meses`;
+            else if (monthInterval === 1) return 'hace un mes';
+    
+            const weekInterval = Math.floor(seconds / 604800); // weeks
+            if (weekInterval > 1) return `hace ${weekInterval} semanas`;
+            else if (weekInterval === 1) return 'hace una semana';
+    
+            const dayInterval = Math.floor(seconds / 86400); // days
+            if (dayInterval > 1) return `hace ${dayInterval} días`;
+            else if (dayInterval === 1) return 'ayer';
+    
+            const hourInterval = Math.floor(seconds / 3600); // hours
+            if (hourInterval > 1) return `hace ${hourInterval} horas`;
+            else if (hourInterval === 1) return 'hace una hora';
+    
+            const minuteInterval = Math.floor(seconds / 60); // minutes
+            if (minuteInterval > 1) return `hace ${minuteInterval} minutos`;
+            else if (minuteInterval === 1) return 'hace un minuto';
+    
+            return 'hace unos segundos';
+        }
+    
+        function updateTimes() {
+            document.querySelectorAll('.post-time').forEach(el => {
+                const timestamp = new Date(el.dataset.timestamp);
+                el.textContent = timeAgo(timestamp);
+            });
+        }
+    
+        updateTimes(); // Initial update
+        setInterval(updateTimes, 60000); // Update every minute
+    });
+    
+    function showEditForm(event) {
+        event.preventDefault();
+        const postId = event.target.dataset.postId;
+        document.querySelector(`#post-content-${postId}`).style.display = 'none';
+        document.querySelector(`#edit-form-${postId}`).style.display = 'block';
+    }
+    
+    function toggleCommentForm(postId) {
+        const form = document.getElementById(`comment-form-${postId}`);
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+    
+    function toggleComments(postId) {
+        const comments = document.getElementById(`comments-${postId}`);
+        comments.style.display = comments.style.display === 'none' ? 'block' : 'none';
+    }
+    </script>
+    
+{% endblock %}

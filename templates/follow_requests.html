@@ -1,0 +1,30 @@
+{% extends 'layoutUser.html' %}
+{% block title %}Nexly: Solicitudes{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4 text-center text-light">Solicitudes</h2>
+    <div class="list-group">
+        {% for request in follow_requests %}
+        <div class="list-group-item d-flex align-items-center bg-dark text-light border-0 rounded-3 shadow-sm mb-2">
+            <img src="{% if request.from_user.profile_picture %}{{ request.from_user.profile_picture.url }}{% else %}https://via.placeholder.com/50{% endif %}" class="rounded-circle me-3" alt="Profile Picture" width="50" height="50">
+            <div class="flex-grow-1">
+                <strong><a href="{% url 'profile' request.from_user.nombre %}" class="text-light text-decoration-none">{{ request.from_user.nombre }}</a></strong>
+                <span class="text-white">te ha enviado una solicitud de seguimiento.</span>
+            </div>
+            <div>
+                <form action="{% url 'accept_follow_request' request.id %}" method="POST" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary btn-sm me-2">Aceptar</button>
+                </form>
+                <form action="{% url 'reject_follow_request' request.id %}" method="POST" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-secondary btn-sm">Rechazar</button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <div class="list-group-item bg-dark text-light border-0 rounded-3 shadow-sm">No tienes solicitudes de seguimiento pendientes.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

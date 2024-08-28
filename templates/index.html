@@ -1,0 +1,297 @@
+{% extends 'layoutUser.html' %}
+{% load static %}
+{% block title %}Nexly: Inicio{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- Columna principal que ocupa dos tercios del ancho -->
+        <div class="col-lg-8">
+            <div class="nexly-container">
+                <h1>Bienvenido, {{ user.nombre }}!</h1>
+                <p>Estamos felices de tenerte aquí. Disfruta explorando nuestra aplicación.</p>
+
+                <!-- Formulario para publicación -->
+                <form method="POST" class="post-form">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" name="post_content" class="btn btn-primary">Publicar</button>
+                </form><br>
+
+                <!-- Menú de filtros -->
+                <div class="mb-4">
+                    <a href="{% url 'nexly' %}?filter=following" class="btn btn-outline-primary me-2{% if show_following_posts %} active{% endif %}" role="button">
+                        Publicaciones que sigo
+                    </a>
+                    <a href="{% url 'nexly' %}" class="btn btn-outline-primary{% if not show_following_posts %} active{% endif %}" role="button">
+                        Todas las publicaciones
+                    </a>
+                </div>
+
+                <!-- Contenido de publicaciones -->
+                <div class="posts-container">
+                    {% for post in posts %}
+                        <div class="post position-relative mb-4">
+                            <!-- Imagen de perfil -->
+                            <div class="d-flex align-items-start mb-2">
+                                <img src="{% if post.user.profile_picture %}{{ post.user.profile_picture.url }}{% else %}{% static 'images/imagenDefecto.png' %}{% endif %}" 
+                                class="rounded-circle" 
+                                alt="Profile Picture" 
+                                width="50" 
+                                height="50" 
+                                style="object-fit: cover;">                           
+                           
+                                <div class="ms-3">
+                                    {% if post.original_post %}
+                                    <p><strong><a href="{% url 'profile' post.user.nombre %}">{{ post.user.nombre }}</a></strong> compartió una publicación de <strong><a href="{% url 'profile' post.original_post.user.nombre %}">{{ post.original_post.user.nombre }}</a></strong>:</p>
+                                    <p>{{ post.original_post.content }}</p>
+                                    {% else %}
+                                        <strong><a href="{% url 'profile' post.user.nombre %}">{{ post.user.nombre }}</a></strong>
+                                        <p id="post-content-{{ post.id }}">{{ post.content }}</p>
+                                    {% endif %}
+                                    <!-- Mostrar tiempo relativo -->
+                                    <p><small class="post-time" data-timestamp="{{ post.created_at|date:'c' }}"></small></p>
+                                </div>
+                            </div>
+
+                    <!-- Botones alineados -->
+                    <div class="d-flex gap-2 mb-2 w-100 justify-content-between">
+                        <a href="{% url 'like_post' post.id %}" class="btn btn-light flex-fill text-center">
+                            {% if user in post.like_set.all %}
+                                <i class="fas fa-thumbs-up"></i> 
+                                Like ({{ post.like_set.count }})
+                            {% else %}
+                                <i class="fas fa-thumbs-up"></i> 
+                                Like ({{ post.like_set.count }})
+                            {% endif %}
+                        </a>
+
+                        <button class="btn btn-light flex-fill text-center" onclick="toggleCommentForm({{ post.id }})">
+                            <i class="fas fa-comment"></i> Comentar
+                        </button>
+
+                        <a href="{% url 'share_post' post.id %}" class="btn btn-light flex-fill text-center">
+                            <i class="fas fa-share"></i> Compartir
+                        </a>
+                    </div>
+
+
+                            {% if post.user == user %}
+                                <!-- Menú desplegable -->
+                                <div class="dropdown position-absolute top-0 end-0 mt-2 me-2">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton-{{ post.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                        ⋮
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton-{{ post.id }}">
+                                        <li><a class="dropdown-item" href="#" data-post-id="{{ post.id }}" onclick="showEditForm(event)">Editar</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'delete_post' post.id %}" onclick="return confirm('¿Estás seguro de que deseas eliminar esta publicación?')">Eliminar</a></li>
+                                    </ul>
+                                </div>
+
+                                <div id="edit-form-{{ post.id }}" style="display: none;">
+                                    <textarea class="form-control mb-2 textarea" id="edit-post-content-{{ post.id }}">{{ post.content }}</textarea>
+                                    <button class="btn btn-primary save-post-btn" data-post-id="{{ post.id }}">Guardar Cambios</button>
+                                </div>
+                            {% endif %}
+
+                            <!-- Etiqueta de contador de comentarios -->
+                            <p class="comment-count" data-post-id="{{ post.id }}" data-count="{{ post.comments.count }}" onclick="toggleComments({{ post.id }})">
+                                {% if post.comments.count == 0 %}
+                                    <!-- No texto cuando no hay comentarios -->
+                                {% elif post.comments.count == 1 %}
+                                    1 comentario
+                                {% else %}
+                                    {{ post.comments.count }} comentarios
+                                {% endif %}
+                            </p>
+
+                            <!-- Formulario para comentarios -->
+                            <div id="comment-form-{{ post.id }}" class="comment-form" style="display: none;">
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    {{ comment_form.as_p }}
+                                    <input type="hidden" name="post_id" value="{{ post.id }}">
+                                    <button type="submit" name="comment_content" class="btn btn-secondary">Comentar</button>
+                                </form>
+                            </div>
+
+                            <!-- Comentarios -->
+                            <div id="comments-{{ post.id }}" class="comments" style="display: none;">
+                                {% for comment in post.comments.all %}
+                                    <div class="comment d-flex align-items-start mb-3">
+                                        <!-- Imagen del usuario -->
+                                        <img src="https://via.placeholder.com/50" class="img-fluid rounded-circle me-3" alt="User Image">
+
+                                        <div>
+                                            <p><strong><a href="{% url 'profile' comment.user.nombre %}">{{ comment.user.nombre }}</a></strong> comentó:</p>
+                                            <p>{{ comment.content }}</p>
+                                            <p><small>{{ comment.time_since_commented }}</small></p>
+                                            <a href="{% url 'like_comment' comment.id %}" class="btn btn-light">
+                                                {% if user in comment.commentlike_set.all %}
+                                                    <i class="fas fa-thumbs-up"></i> 
+                                                    Like ({{ comment.commentlike_set.count }})
+                                                {% else %} 
+                                                    <i class="fas fa-thumbs-up"></i> 
+                                                    Like ({{ comment.commentlike_set.count }})
+                                                {% endif %}
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% empty %}
+                                    <p>No hay comentarios aún.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+ <!-- Columna secundaria que ocupa un tercio del ancho -->
+<div class="col-lg-4">
+    <!-- Sección adicional con las publicaciones más destacadas -->
+    <div class="sidebar" style="background-color: #1F1F1F; padding: 1.5rem; border-radius: 12px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);">
+        <h2 style="color: #E0E0E0;">Publicaciones Destacadas</h2>
+        {% if top_posts %}
+            <ul class="list-group" style="background-color: #1E1E1E;">
+                {% for post in top_posts %}
+                    <li class="list-group-item" style="background-color: #1E1E1E; border: 1px solid #333; color: #D0D0D0;">
+                        <strong><a href="{% url 'profile' post.user.nombre %}" style="color: #1DA1F2;">{{ post.user.nombre }}</a></strong>
+                        <p>{{ post.content|truncatewords:20 }}</p>
+                        <p><small style="color: #A0A0A0;">
+                            <i class="bi bi-hand-thumbs-up-fill" style="color: #1DA1F2;"></i> <!-- Icono de like -->
+                            {{ post.like_set.count }} Likes
+                        </small></p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p style="color: #A0A0A0;">No hay publicaciones destacadas aún.</p>
+        {% endif %}
+    </div>
+</div>
+
+
+
+
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.save-post-btn').forEach(btn => {
+        btn.addEventListener('click', event => {
+            const postId = event.target.dataset.postId;
+            const content = document.querySelector(`#edit-post-content-${postId}`).value;
+
+            fetch(`/edit-post/${postId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `content=${encodeURIComponent(content)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.content) {
+                    document.querySelector(`#post-content-${postId}`).innerText = data.content;
+                    document.querySelector(`#post-content-${postId}`).style.display = 'block';
+                    document.querySelector(`#edit-form-${postId}`).style.display = 'none';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+
+    // Actualizar la etiqueta de comentarios al cargar la página
+    document.querySelectorAll('.comment-count').forEach(count => {
+        const postId = count.dataset.postId;
+        const commentsDiv = document.getElementById(`comments-${postId}`);
+        if (commentsDiv.style.display === 'block') {
+            count.textContent = 'Ocultar comentarios';
+        }
+    });
+});
+
+function showEditForm(event) {
+    event.preventDefault();
+    const postId = event.target.dataset.postId;
+    document.querySelector(`#post-content-${postId}`).style.display = 'none';
+    document.querySelector(`#edit-form-${postId}`).style.display = 'block';
+}
+
+function toggleComments(postId) {
+    const commentsDiv = document.getElementById(`comments-${postId}`);
+    const commentCountLabel = document.querySelector(`.comment-count[data-post-id="${postId}"]`);
+    if (commentsDiv.style.display === 'none') {
+        commentsDiv.style.display = 'block';
+        commentCountLabel.textContent = 'Ocultar comentarios';
+    } else {
+        commentsDiv.style.display = 'none';
+        const count = commentCountLabel.dataset.count;
+        if (count == 0) {
+            commentCountLabel.textContent = '';
+        } else if (count == 1) {
+            commentCountLabel.textContent = '1 comentario';
+        } else {
+            commentCountLabel.textContent = `${count} comentarios`;
+        }
+    }
+}
+
+function toggleCommentForm(postId) {
+    const commentFormDiv = document.getElementById(`comment-form-${postId}`);
+    if (commentFormDiv.style.display === 'none') {
+        commentFormDiv.style.display = 'block';
+    } else {
+        commentFormDiv.style.display = 'none';
+    }
+}
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        function timeAgo(date) {
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+            const interval = Math.floor(seconds / 31536000); // years
+            if (interval > 1) return `hace ${interval} años`;
+            else if (interval === 1) return 'hace un año';
+    
+            const monthInterval = Math.floor(seconds / 2592000); // months
+            if (monthInterval > 1) return `hace ${monthInterval} meses`;
+            else if (monthInterval === 1) return 'hace un mes';
+    
+            const weekInterval = Math.floor(seconds / 604800); // weeks
+            if (weekInterval > 1) return `hace ${weekInterval} semanas`;
+            else if (weekInterval === 1) return 'hace una semana';
+    
+            const dayInterval = Math.floor(seconds / 86400); // days
+            if (dayInterval > 1) return `hace ${dayInterval} días`;
+            else if (dayInterval === 1) return 'ayer';
+    
+            const hourInterval = Math.floor(seconds / 3600); // hours
+            if (hourInterval > 1) return `hace ${hourInterval} horas`;
+            else if (hourInterval === 1) return 'hace una hora';
+    
+            const minuteInterval = Math.floor(seconds / 60); // minutes
+            if (minuteInterval > 1) return `hace ${minuteInterval} minutos`;
+            else if (minuteInterval === 1) return 'hace un minuto';
+    
+            return 'hace unos segundos';
+        }
+    
+        function updateTimes() {
+            document.querySelectorAll('.post-time').forEach(el => {
+                const timestamp = new Date(el.dataset.timestamp);
+                el.textContent = timeAgo(timestamp);
+            });
+        }
+    
+        updateTimes(); // Initial update
+    
+        setInterval(updateTimes, 60000); // Update every minute
+    });
+    </script>
+    
+{% endblock %}

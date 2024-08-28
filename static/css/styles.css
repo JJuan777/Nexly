@@ -1,0 +1,178 @@
+body {
+    background-color: #121212; /* Fondo oscuro para el cuerpo */
+    color: #E0E0E0; /* Texto claro */
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    margin: 0;
+}
+
+/* Barra de navegación personalizada */
+.navbar {
+    background-color: #1E1E1E; /* Color de fondo oscuro */
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: #FFFFFF; /* Color blanco para los enlaces */
+}
+
+.navbar-dark .navbar-brand {
+    color: #FFFFFF; /* Texto blanco para la marca */
+}
+
+.navbar-dark .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='3' y1='12' x2='21' y2='12'/%3E%3Cline x1='3' y1='6' x2='21' y2='6'/%3E%3Cline x1='3' y1='18' x2='21' y2='18'/%3E%3C/svg%3E");
+}
+
+.navbar-nav .nav-item .nav-link:hover {
+    color: #d1c7c7; /* Verde brillante al pasar el ratón por encima de los enlaces */
+}
+
+.container {
+    max-width: 960px; /* Ajusta el ancho máximo del contenedor */
+}
+
+h1, h2 {
+    text-align: center;
+    font-weight: bold;
+    color: #E0E0E0; /* Texto claro para los encabezados */
+}
+
+.btn-primary {
+    background-color: #1DA1F2; /* Color azul para los botones */
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #0d8ddb; /* Azul más oscuro al pasar el ratón por encima de los botones */
+}
+
+form p {
+    margin-bottom: 1rem;
+}
+
+.register-container, .login-container {
+    background-color: #1F1F1F; /* Fondo oscuro para los contenedores */
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto; /* Centra horizontalmente */
+}
+
+.custom-register-container, .login-container {
+    margin-top: 2rem; /* Ajusta esta propiedad según sea necesario */
+}
+
+/* Estilo para el contenedor de publicaciones */
+.posts-container {
+    margin-top: 2rem;
+}
+
+/* Estilo para cada publicación */
+.post {
+    background-color: #1E1E1E; /* Fondo oscuro para la publicación */
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); /* Sombra suave */
+    border: 1px solid #333; /* Borde gris oscuro */
+}
+
+/* Estilo del nombre del usuario */
+.post p strong {
+    color: #E0E0E0; /* Texto claro para el nombre del usuario */
+}
+
+/* Estilo para el contenido de la publicación */
+.post p {
+    color: #D0D0D0; /* Texto ligeramente más claro para el contenido */
+    margin-top: 0.5rem;
+}
+
+/* Estilo para la fecha */
+.post p small {
+    color: #A0A0A0; /* Texto más claro para la fecha */
+}
+
+/* Estilo del botón de like */
+.btn-light {
+    background-color: #333;
+    color: #E0E0E0;
+    border: none;
+}
+
+.btn-light:hover {
+    background-color: #444;
+    color: #FFFFFF;
+}
+/* Estilo ajustado para los inputs de los formularios */
+.form-control {
+    background-color: #1F1F1F; /* Fondo oscuro para el input */
+    color: #E0E0E0; /* Texto claro */
+    border: 1px solid #333; /* Borde gris oscuro */
+    padding: 0.5rem; /* Reducir el padding */
+    border-radius: 6px; /* Bordes ligeramente más pequeños */
+    box-shadow: inset 0px 1px 3px rgba(0, 0, 0, 0.3); /* Sombra interna suave */
+    font-size: 0.875rem; /* Reducir el tamaño de la fuente */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control::placeholder {
+    color: #A0A0A0; /* Color más claro para el placeholder */
+}
+
+.form-control:focus {
+    border-color: #1DA1F2; /* Azul para el borde al enfocarse */
+    box-shadow: 0px 0px 8px rgba(29, 161, 242, 0.6); /* Sombra azul brillante */
+    outline: none;
+}
+
+/* Estilo para el área de texto */
+.form-control.textarea {
+    min-height: 80px; /* Reducir la altura mínima para el área de texto */
+}
+
+/* Estilo para los botones */
+.btn-primary {
+    background-color: #1DA1F2; /* Azul para los botones */
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem; /* Reducir el padding del botón */
+    font-size: 0.875rem; /* Reducir el tamaño de la fuente del botón */
+    border-radius: 6px; /* Bordes ligeramente más pequeños */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0d8ddb; /* Azul más oscuro al pasar el ratón */
+}
+.comment-count {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #007bff; /* Cambia el color según tus preferencias */
+    cursor: pointer;
+}
+a {
+    color: #007bff; /* Azul */
+    text-decoration: none; /* Quita el subrayado */
+  }
+
+  /* Menú desplegable */
+.dropdown-menu-dark {
+    background-color: #1E1E1E; /* Fondo oscuro para el menú desplegable */
+    border: 1px solid #333; /* Borde oscuro */
+}
+
+.dropdown-item {
+    color: #E0E0E0; /* Texto claro */
+}
+
+.dropdown-item:hover {
+    background-color: #333; /* Fondo más oscuro al pasar el ratón */
+    color: #FFFFFF; /* Texto blanco al pasar el ratón */
+}
+
+.dropdown-divider {
+    border-color: #444; /* Divisor con color oscuro */
+}

@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block title %}Nexly: login{% endblock %}
+
+{% block content %}
+<div class="login-container text-center">
+    <!-- Logo en la parte superior -->
+    <img src="{% static 'images/LogoNexly.ico' %}" alt="Logo Nexly" class="mb-4" style="height: 80px;">
+    
+    <h2>Iniciar Sesión</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+    </form>
+    
+    <div class="mt-3 text-center">
+        <p>¿No tienes una cuenta?</p>
+        <a href="{% url 'register' %}" class="btn btn-secondary w-100">Registrarse</a>
+    </div>
+</div>
+{% endblock %}
