@@ -156,32 +156,37 @@
                     </form>
                 </div>
 
-<!-- Comentarios -->
-<div id="comments-{{ post.id }}" class="comments" style="display: none;">
-    {% for comment in post.comments.all %}
-        <div class="comment d-flex align-items-start mb-3">
-            <!-- Imagen del usuario -->
-            <img src="https://via.placeholder.com/50" class="img-fluid rounded-circle me-3" alt="User Image">
+                         <!-- Comentarios -->
+                         <div id="comments-{{ post.id }}" class="comments" style="display: none;">
+                            {% for comment in post.comments.all %}
+                                <div class="comment d-flex align-items-start mb-3">
+                                    <!-- Imagen del usuario -->
+                                    <img src="{% if comment.user.profile_picture %}{{ comment.user.profile_picture.url }}{% else %}{% static 'images/imagenDefecto.png' %}{% endif %}" 
+                                    class="img-fluid rounded-circle me-3" 
+                                    alt="User Image" 
+                                    width="50" 
+                                    height="50" 
+                                    style="object-fit: cover;">
 
-            <div>
-                <p><strong><a href="{% url 'profile' comment.user.nombre %}">{{ comment.user.nombre }}</a></strong> comentó:</p>
-                <p>{{ comment.content }}</p>
-                <p><small>{{ comment.time_since_commented }}</small></p>
-                <a href="{% url 'like_comment' comment.id %}" class="btn btn-light">
-                    {% if user in comment.commentlike_set.all %}
-                        <i class="fas fa-thumbs-up"></i> 
-                        Like ({{ comment.commentlike_set.count }})
-                    {% else %} 
-                        <i class="fas fa-thumbs-up"></i> 
-                        Like ({{ comment.commentlike_set.count }})
-                    {% endif %}
-                </a>
-            </div>
-        </div>
-    {% empty %}
-        <p>No hay comentarios aún.</p>
-    {% endfor %}
-</div>
+                                    <div>
+                                        <p><strong><a href="{% url 'profile' comment.user.nombre %}">{{ comment.user.nombre }}</a></strong> comentó:</p>
+                                        <p>{{ comment.content }}</p>
+                                        <p><small>{{ comment.time_since_commented }}</small></p>
+                                        <a href="{% url 'like_comment' comment.id %}" class="btn btn-light">
+                                            {% if user in comment.commentlike_set.all %}
+                                                <i class="fas fa-thumbs-up"></i> 
+                                                Like ({{ comment.commentlike_set.count }})
+                                            {% else %} 
+                                                <i class="fas fa-thumbs-up"></i> 
+                                                Like ({{ comment.commentlike_set.count }})
+                                            {% endif %}
+                                        </a>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <p>No hay comentarios aún.</p>
+                            {% endfor %}
+                        </div>
               
         </div>
     {% endfor %}

@@ -9,7 +9,7 @@
             <img src="{% if request.from_user.profile_picture %}{{ request.from_user.profile_picture.url }}{% else %}https://via.placeholder.com/50{% endif %}" class="rounded-circle me-3" alt="Profile Picture" width="50" height="50">
             <div class="flex-grow-1">
                 <strong><a href="{% url 'profile' request.from_user.nombre %}" class="text-light text-decoration-none">{{ request.from_user.nombre }}</a></strong>
-                <span class="text-white">te ha enviado una solicitud de seguimiento.</span>
+                <span class="text-white">te ha enviado una solicitud.</span>
             </div>
             <div>
                 <form action="{% url 'accept_follow_request' request.id %}" method="POST" class="d-inline">
@@ -23,7 +23,7 @@
             </div>
         </div>
         {% empty %}
-        <div class="list-group-item bg-dark text-light border-0 rounded-3 shadow-sm">No tienes solicitudes de seguimiento pendientes.</div>
+        <div class="list-group-item bg-dark text-light border-0 rounded-3 shadow-sm">No tienes solicitudes pendientes.</div>
         {% endfor %}
     </div>
 </div>
