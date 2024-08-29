@@ -3,6 +3,7 @@ from .views import login_view, register_view, nexly_view, logout_view, like_post
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from .views import clear_follow_request_message,  reject_follow_request, accept_follow_request
 
 urlpatterns = [
     path('', nexly_view, name='nexly'),
@@ -19,5 +20,8 @@ urlpatterns = [
     path('accept_follow_request/<int:request_id>/', views.accept_follow_request, name='accept_follow_request'),
     path('reject_follow_request/<int:request_id>/', views.reject_follow_request, name='reject_follow_request'),
     path('follow_requests/', views.follow_requests, name='follow_requests'),
+    path('clear-follow-request-message/', clear_follow_request_message, name='clear_follow_request_message'),
+    path('accept-follow-request/<int:request_id>/', accept_follow_request, name='accept_follow_request'),
+    path('reject-follow-request/<int:request_id>/', reject_follow_request, name='reject_follow_request'),
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

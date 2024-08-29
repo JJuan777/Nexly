@@ -1,8 +1,30 @@
 {% extends 'layoutUser.html' %}
 {% block title %}Nexly: Solicitudes{% endblock %}
 {% block content %}
+
 <div class="container mt-4">
     <h2 class="mb-4 text-center text-light">Solicitudes</h2>
+
+    <!-- Mostrar alertas si están disponibles -->
+    {% if request.session.follow_request_message %}
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            {{ request.session.follow_request_message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                fetch("{% url 'clear_follow_request_message' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                });
+            });
+        </script>
+    {% endif %}
+
     <div class="list-group">
         {% for request in follow_requests %}
         <div class="list-group-item d-flex align-items-center bg-dark text-light border-0 rounded-3 shadow-sm mb-2">
@@ -27,4 +49,5 @@
         {% endfor %}
     </div>
 </div>
+
 {% endblock %}

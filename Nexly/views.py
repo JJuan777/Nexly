@@ -10,6 +10,8 @@ from django.http import JsonResponse
 from django.shortcuts import redirect
 from .models import FollowRequest
 from django.db.models import Count
+from django.urls import reverse
+from django.views.decorators.http import require_POST
 
 def login_view(request):
     form = LoginForm(data=request.POST or None)
@@ -266,25 +268,49 @@ def profile_view(request, nombre):
 def send_follow_request(request, user_id):
     to_user = get_object_or_404(User, iduser=user_id)
     follow_request, created = FollowRequest.objects.get_or_create(from_user=request.user, to_user=to_user)
-    if not created:
-        return JsonResponse({'error': 'Ya has enviado una solicitud a este usuario'}, status=400)
-    return JsonResponse({'message': 'Solicitud enviada correctamente'})
+    
+    if created:
+        request.session['follow_request_message'] = 'Solicitud enviada exitosamente.'
+    else:
+        request.session['follow_request_message'] = 'Ya has enviado una solicitud este usuario.'
+    
+    return redirect(reverse('profile', args=[to_user.nombre]))
+@require_POST
+@login_required
+def clear_follow_request_message(request):
+    if 'follow_request_message' in request.session:
+        del request.session['follow_request_message']
+    return JsonResponse({'status': 'success'})
 
 @login_required
 def accept_follow_request(request, request_id):
     follow_request = get_object_or_404(FollowRequest, id=request_id, to_user=request.user)
     follow_request.is_accepted = True
     follow_request.save()
-    return JsonResponse({'message': 'Solicitud aceptada'})
+    
+    # Guarda el mensaje en la sesión
+    request.session['follow_request_message'] = 'Solicitud aceptada.'
+
+    return redirect('follow_requests')
 
 @login_required
 def reject_follow_request(request, request_id):
     follow_request = get_object_or_404(FollowRequest, id=request_id, to_user=request.user)
     follow_request.delete()
-    return JsonResponse({'message': 'Solicitud rechazada'})
+    
+    # Guarda el mensaje en la sesión
+    request.session['follow_request_message'] = 'Solicitud rechazada.'
+
+    return redirect('follow_requests')
 @login_required
 def follow_requests(request):
     follow_requests = FollowRequest.objects.filter(to_user=request.user, is_accepted=False)
     return render(request, 'follow_requests.html', {
         'follow_requests': follow_requests
     })
+@require_POST
+@login_required
+def clear_follow_request_message(request):
+    if 'follow_request_message' in request.session:
+        del request.session['follow_request_message']
+    return JsonResponse({'status': 'success'})

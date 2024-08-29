@@ -194,3 +194,28 @@ a {
 .btn-secondary:hover {
     background-color: rgba(0, 0, 0, 0.8); /* Fondo más oscuro al pasar el mouse */
 }
+.alert-container {
+    margin-top: 20px;
+}
+
+.alert {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.close {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: #000;
+    opacity: 0.5;
+}
+
+.close:hover {
+    opacity: 0.75;
+}
+
+.close span {
+    font-size: 1.5rem; /* Ajusta el tamaño del icono de cierre */
+}
