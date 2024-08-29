@@ -161,14 +161,11 @@
                     class="rounded-circle" alt="Profile Picture" width="50" height="50" style="object-fit: cover;">
                 <div class="ms-3">
                     {% if post.original_post %}
-                    <p><strong><a href="{% url 'profile' post.user.nombre %}">{{ post.user.nombre }}</a></strong>
-                        compartió una publicación de <strong><a
-                                href="{% url 'profile' post.original_post.user.nombre %}">{{
-                                post.original_post.user.nombre }}</a></strong>:</p>
+                    <p><strong><a href="{% url 'profile' post.user.nombre %}">{{ post.user.nombre }}</a></strong> compartió una publicación de <strong><a href="{% url 'profile' post.original_post.user.nombre %}">{{ post.original_post.user.nombre }}</a></strong>:</p>
                     <p>{{ post.original_post.content }}</p>
                     {% else %}
-                    <a href="{% url 'profile' post.user.nombre %}">{{ post.user.nombre }}</a>
-                    <p id="post-content-{{ post.id }}">{{ post.content }}</p>
+                        <strong><a href="{% url 'profile' post.user.nombre %}">{{ post.user.nombre }}</a></strong>
+                        <p id="post-content-{{ post.id }}">{{ post.content }}</p>
                     {% endif %}
                     <!-- Mostrar tiempo relativo -->
                     <p><small class="post-time" data-timestamp="{{ post.created_at|date:'c' }}"></small></p>
