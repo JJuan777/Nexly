@@ -4,7 +4,7 @@ from .forms import LoginForm
 from .forms import RegisterForm
 from django.contrib.auth.decorators import login_required
 from .models import Post, Like, Comment, CommentLike
-from .forms import PostForm, CommentForm
+from .forms import PostForm, CommentForm, BannerUploadForm  
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.shortcuts import redirect
@@ -221,9 +221,15 @@ def profile_view(request, nombre):
             FollowRequest.objects.filter(
                 from_user=request.user, to_user=user, is_accepted=True).delete()
             return redirect('profile', nombre=nombre)
+        elif 'update_banner' in request.POST:
+            banner_form = BannerUploadForm(request.POST, request.FILES, instance=request.user)
+            if banner_form.is_valid():
+                banner_form.save()
+                return redirect('profile', nombre=nombre)
     else:
         form = PostForm()
         comment_form = CommentForm()
+        banner_form = BannerUploadForm(instance=request.user)
 
     # Obtener las URLs de las imágenes de perfil y banner del usuario
     profile_picture_url = user.profile_picture.url if user.profile_picture else None
@@ -238,16 +244,16 @@ def profile_view(request, nombre):
         'posts': posts,
         'form': form,
         'comment_form': comment_form,
+        'banner_form': banner_form,
         'accepted_follow_requests_count': accepted_follow_requests_count,
         'followed_count': followed_count,
         'posts_count': posts_count,
         'is_following': is_following,
         'profile_pictureP': profile_picture_url,
         'banner_pictureP': banner_picture_url,
-        'default_banner_url': default_banner_url,  # Agregar la URL de la imagen de banner por defecto
+        'default_banner_url': default_banner_url,
     }
     return render(request, 'profile.html', context)
-
 
 @login_required
 def send_follow_request(request, user_id):

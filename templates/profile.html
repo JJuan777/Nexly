@@ -10,6 +10,34 @@
         <div class="banner-container">
             <img src="{{ banner_pictureP|default:default_banner_url }}" class="img-fluid" alt="Banner de portada" style="width: 100%; height: auto;">
         </div>
+        <!-- Botón para abrir el modal -->
+        {% if request.user.nombre == nombre %}
+        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#updateBannerModal">
+            <i class="bi bi-pencil-square"></i> 
+            Actualizar Banner
+        </button>
+        {% endif %}
+
+    <!-- Modal de banner -->
+    <div class="modal fade" id="updateBannerModal" tabindex="-1" aria-labelledby="updateBannerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #1F1F1F; color: #E0E0E0; border: 1px solid #333;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateBannerModalLabel">Actualizar Banner</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Formulario para subir un nuevo banner -->
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ banner_form.as_p }}
+                    <button type="submit" name="update_banner" class="btn btn-primary">Actualizar Banner</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+
         <!-- Imagen de perfil -->
         <div class="profile-picture-container position-absolute top-100 start-50 translate-middle">
             {% if profile_pictureP %}

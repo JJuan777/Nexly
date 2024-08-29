@@ -34,3 +34,8 @@ class CommentForm(forms.ModelForm):
         widgets = {
             'content': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Escribe un comentario...'})
         }
+
+class BannerUploadForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['banner_picture']
