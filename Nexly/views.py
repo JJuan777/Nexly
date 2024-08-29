@@ -4,7 +4,7 @@ from .forms import LoginForm
 from .forms import RegisterForm
 from django.contrib.auth.decorators import login_required
 from .models import Post, Like, Comment, CommentLike
-from .forms import PostForm, CommentForm, BannerUploadForm  
+from .forms import PostForm, CommentForm, BannerUploadForm, ProfilePictureUploadForm
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.shortcuts import redirect
@@ -226,10 +226,16 @@ def profile_view(request, nombre):
             if banner_form.is_valid():
                 banner_form.save()
                 return redirect('profile', nombre=nombre)
+        elif 'update_profile_picture' in request.POST:
+            profile_form = ProfilePictureUploadForm(request.POST, request.FILES, instance=request.user)
+            if profile_form.is_valid():
+                profile_form.save()
+                return redirect('profile', nombre=nombre)
     else:
         form = PostForm()
         comment_form = CommentForm()
         banner_form = BannerUploadForm(instance=request.user)
+        profile_form = ProfilePictureUploadForm(instance=request.user)
 
     # Obtener las URLs de las imágenes de perfil y banner del usuario
     profile_picture_url = user.profile_picture.url if user.profile_picture else None
@@ -245,6 +251,7 @@ def profile_view(request, nombre):
         'form': form,
         'comment_form': comment_form,
         'banner_form': banner_form,
+        'profile_form': profile_form,
         'accepted_follow_requests_count': accepted_follow_requests_count,
         'followed_count': followed_count,
         'posts_count': posts_count,

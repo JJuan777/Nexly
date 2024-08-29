@@ -39,3 +39,8 @@ class BannerUploadForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['banner_picture']
+
+class ProfilePictureUploadForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['profile_picture']

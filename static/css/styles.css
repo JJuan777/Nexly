@@ -176,3 +176,21 @@ a {
 .dropdown-divider {
     border-color: #444; /* Divisor con color oscuro */
 }
+.banner-container {
+    position: relative;
+}
+
+.profile-picture-container {
+    position: relative;
+    display: inline-block; /* Asegura que el contenedor tenga solo el tamaño de la imagen */
+}
+
+.btn-secondary {
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
+    border: none; /* Sin borde para un diseño más limpio */
+    color: white; /* Color del texto */
+}
+
+.btn-secondary:hover {
+    background-color: rgba(0, 0, 0, 0.8); /* Fondo más oscuro al pasar el mouse */
+}
