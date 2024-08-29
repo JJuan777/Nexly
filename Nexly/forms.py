@@ -4,6 +4,7 @@ from .models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Post
 from .models import Comment
+from .models import Story
 
 class LoginForm(AuthenticationForm):
     username = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Correo'}))
@@ -44,3 +45,8 @@ class ProfilePictureUploadForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['profile_picture']
+
+class StoryForm(forms.ModelForm):
+    class Meta:
+        model = Story
+        fields = ['image']

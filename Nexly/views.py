@@ -4,14 +4,15 @@ from .forms import LoginForm
 from .forms import RegisterForm
 from django.contrib.auth.decorators import login_required
 from .models import Post, Like, Comment, CommentLike
-from .forms import PostForm, CommentForm, BannerUploadForm, ProfilePictureUploadForm
+from .forms import PostForm, CommentForm, BannerUploadForm, ProfilePictureUploadForm, StoryForm
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.shortcuts import redirect
-from .models import FollowRequest
+from .models import FollowRequest, Story
 from django.db.models import Count
 from django.urls import reverse
 from django.views.decorators.http import require_POST
+
 
 def login_view(request):
     form = LoginForm(data=request.POST or None)
@@ -60,6 +61,19 @@ def logout_view(request):
     return redirect('login')  # Redirige al inicio de sesión después de cerrar sesión
 
 @login_required
+def upload_story(request):
+    if request.method == 'POST':
+        form = StoryForm(request.POST, request.FILES)
+        if form.is_valid():
+            story = form.save(commit=False)
+            story.user = request.user
+            story.save()
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'success', 'story_id': story.id})
+            return redirect('nexly')
+    return redirect('nexly')
+
+@login_required
 def nexly_view(request):
     if request.method == 'POST':
         if 'post_content' in request.POST:
@@ -96,19 +110,26 @@ def nexly_view(request):
         # Obtener las 5 publicaciones más destacadas (con más likes)
         top_posts = Post.objects.annotate(like_count=Count('like')).order_by('-like_count')[:5]
 
+        # Obtener las stories
+        stories = Story.objects.order_by('-created_at')[:10]  # Muestra las últimas 10 stories
+
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return render(request, 'post_list.html', {'posts': posts})
 
         form = PostForm()
         comment_form = CommentForm()
+        story_form = StoryForm()  # Añadido para pasar el formulario de historias al contexto
 
         return render(request, 'index.html', {
             'form': form,
             'comment_form': comment_form,
+            'story_form': story_form,  # Pasar el formulario de historias
             'posts': posts,
             'show_following_posts': show_following_posts,
-            'top_posts': top_posts,  # Añadido para pasar las publicaciones destacadas al contexto
+            'top_posts': top_posts,
+            'stories': stories,
         })
+
     
 @login_required
 def like_post(request, post_id):

@@ -4,6 +4,121 @@
 
 {% block content %}
 <div class="container">
+<!-- Story -->
+<div class="stories-section d-flex overflow-auto mb-4">
+    <!-- Recuadro para agregar una nueva story -->
+    <div class="story-card text-center mx-2" style="width: 100px; position: relative; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#uploadStoryModal">
+        <div class="story-image-wrapper mb-2" style="position: relative; z-index: 0;">
+            <div class="story-image-placeholder" style="width: 80px; height: 100px; background-color: #1F1F1F; display: flex; justify-content: center; align-items: center; border-radius: 10px; color: #FFFFFF; font-size: 14px; font-weight: bold;">
+                <span>+</span>
+            </div>
+        </div>
+        <div class="story-author text-truncate" style="color: #FFFFFF;">
+            <small>Add a Story</small>
+        </div>
+    </div>
+
+    {% for story in stories %}
+    <div class="story-card text-center mx-2" style="width: 100px; position: relative;">
+        <!-- Imagen de perfil del usuario en la esquina superior izquierda -->
+        <div class="user-profile-picture"
+            style="position: absolute; top: -10px; left: -10px; width: 40px; height: 40px; z-index: 1;">
+            <img src="{{ story.user.profile_picture.url }}" alt="User Profile"
+                style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid white;">
+        </div>
+
+        <div class="story-image-wrapper mb-2" style="position: relative; z-index: 0;">
+            <img src="{{ story.image.url }}" class="story-image" alt="Story Image"
+                style="width: 80px; height: 100px; object-fit: cover;" data-bs-toggle="modal"
+                data-bs-target="#storyModal"
+                onclick="loadStoryDetails('{{ story.image.url }}', '{{ story.user.profile_picture.url }}', '{{ story.user.nombre }}', '{{ story.created_at|timesince }}')">
+        </div>
+        <div class="story-author text-truncate" style="color: #FFFFFF;">
+            <small>{{ story.user.nombre }}</small>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Modal for uploading a new story -->
+<div class="modal fade" id="uploadStoryModal" tabindex="-1" aria-labelledby="uploadStoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="background-color: #2A2A2A; color: #FFFFFF;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadStoryModalLabel">Upload a Story</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" enctype="multipart/form-data" action="{% url 'upload_story' %}">
+                    {% csrf_token %}
+                    {{ story_form.as_p }}
+                    <button type="submit" class="btn btn-primary">Subir</button>
+                  </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for story details -->
+<div class="modal fade" id="storyModal" tabindex="-1" aria-labelledby="storyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="background-color: #2A2A2A; color: #FFFFFF;">
+            <div class="modal-header d-flex align-items-center">
+                <!-- Imagen de perfil del usuario -->
+                <img id="modal-user-profile" src="" alt="User Profile"
+                    style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid white; margin-right: 10px;">
+                
+                <!-- Información del usuario y tiempo -->
+                <div class="d-flex flex-column">
+                    <h5 id="modal-user-name" style="margin: 0;"></h5>
+                    <p id="modal-story-time" style="margin: 0;"></p>
+                </div>
+
+                <!-- Botón de cierre -->
+                <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body d-flex flex-column align-items-center" style="overflow: hidden;">
+                <!-- Imagen de la historia ajustada al tamaño del modal -->
+                <div class="modal-image-container"
+                    style="width: 100%; height: 70%; display: flex; justify-content: center; align-items: center;">
+                    <img id="modal-story-image" src="" alt="Story Image"
+                        style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 10px; margin-bottom: 15px;">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+ <!-- Modal -->
+<div class="modal fade" id="storyModal" tabindex="-1" aria-labelledby="storyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg"> <!-- Ajuste el tamaño del modal -->
+        <div class="modal-content" style="background-color: #2A2A2A; color: #FFFFFF;">
+            <div class="modal-header d-flex align-items-center">
+                <!-- Imagen de perfil del usuario -->
+                <img id="modal-user-profile" src="" alt="User Profile"
+                    style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid white; margin-right: 10px;">
+                
+                <!-- Información del usuario y tiempo -->
+                <div class="d-flex flex-column">
+                    <h5 id="modal-user-name" style="margin: 0;"></h5>
+                    <p id="modal-story-time" style="margin: 0;"></p>
+                </div>
+
+                <!-- Botón de cierre -->
+                <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body d-flex flex-column align-items-center" style="overflow: hidden;">
+                <!-- Imagen de la historia ajustada al tamaño del modal -->
+                <div class="modal-image-container"
+                    style="width: 100%; height: 70%; display: flex; justify-content: center; align-items: center;">
+                    <img id="modal-story-image" src="" alt="Story Image"
+                        style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 10px; margin-bottom: 15px;">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
     <div class="row">
         <!-- Columna principal que ocupa dos tercios del ancho -->
         <div class="col-lg-8">
@@ -298,5 +413,20 @@ function toggleCommentForm(postId) {
         setInterval(updateTimes, 60000); // Update every minute
     });
     </script>
+    <script>
+        function loadStoryDetails(storyImageUrl, userProfileUrl, userName, storyTime) {
+            // Asignar la URL de la imagen de la historia
+            document.getElementById("modal-story-image").src = storyImageUrl;
     
+            // Asignar la URL de la imagen de perfil del usuario
+            document.getElementById("modal-user-profile").src = userProfileUrl;
+    
+            // Asignar el nombre del usuario
+            document.getElementById("modal-user-name").textContent = userName;
+    
+            // Asignar el tiempo transcurrido
+            document.getElementById("modal-story-time").textContent = storyTime + " ago";
+        }
+    
+    </script>
 {% endblock %}

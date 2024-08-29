@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Post, Like, Comment, CommentLike, FollowRequest
+from .models import User, Post, Like, Comment, CommentLike, FollowRequest, Story  
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ('iduser', 'correo', 'nombre', 'profile_picture', 'banner_picture', 'is_admin', 'is_active')
@@ -38,9 +38,16 @@ class FollowRequestAdmin(admin.ModelAdmin):
     list_filter = ('created_at', 'is_accepted')
     ordering = ('-created_at',)
 
+class StoryAdmin(admin.ModelAdmin):
+    list_display = ('user', 'created_at') 
+    search_fields = ('user__correo',)  
+    list_filter = ('created_at',) 
+    ordering = ('-created_at',)  
+
 admin.site.register(User, UserAdmin)
 admin.site.register(Post, PostAdmin)
 admin.site.register(Like, LikeAdmin)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(CommentLike, CommentLikeAdmin)
 admin.site.register(FollowRequest, FollowRequestAdmin)
+admin.site.register(Story, StoryAdmin) 

@@ -219,3 +219,62 @@ a {
 .close span {
     font-size: 1.5rem; /* Ajusta el tamaño del icono de cierre */
 }
+
+
+.stories-section {
+    padding: 10px;
+    background-color: #1E1E1E; /* Fondo oscuro para la sección de stories */
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.story-card {
+    background-color: #2A2A2A; /* Fondo oscuro para cada story */
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); /* Sombra suave */
+    margin-right: 10px;
+}
+
+.story-image-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+    border-radius: 10px; /* Menos redondeado para forma rectangular */
+    overflow: hidden;
+    width: 80px;
+    height: 100px; /* Tamaño más alto para forma rectangular */
+    background-color: #1E1E1E; /* Fondo para la imagen */
+}
+
+.story-author {
+    font-size: 14px;
+    font-weight: bold;
+    color: #E0E0E0; /* Texto claro */
+    text-align: center;
+}
+
+.story-date {
+    font-size: 12px;
+    color: #A0A0A0; /* Texto más claro para la fecha */
+    text-align: center;
+}
+.story-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ajusta la imagen para que cubra todo el contenedor */
+    border-radius: 10px; /* Aplica un ligero redondeado a la imagen */
+}
+.modal-image-container {
+    max-width: 500px; /* adjust this value to your desired maximum width */
+    max-height: 500px; /* adjust this value to your desired maximum height */
+  }
+  
+  #modal-story-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 10px;
+    margin-bottom: 15px;
+  }
