@@ -12,6 +12,9 @@ from .models import FollowRequest, Story
 from django.db.models import Count
 from django.urls import reverse
 from django.views.decorators.http import require_POST
+from django.db.models import Q
+import random
+from django.contrib.auth.models import User
 
 
 def login_view(request):
@@ -325,9 +328,25 @@ def reject_follow_request(request, request_id):
     return redirect('follow_requests')
 @login_required
 def follow_requests(request):
+    # Obtener solicitudes de seguimiento pendientes
     follow_requests = FollowRequest.objects.filter(to_user=request.user, is_accepted=False)
+
+    # Obtener los usuarios que el usuario ya sigue o que le han enviado una solicitud
+    following_or_requested = FollowRequest.objects.filter(
+        Q(from_user=request.user) | Q(to_user=request.user)
+    ).values_list('to_user_id', 'from_user_id')
+
+    following_or_requested_ids = [user_id for user_id, _ in following_or_requested]
+
+    # Obtener 5 usuarios aleatorios que no estén en la lista anterior
+    # Y contar cuántas solicitudes de seguimiento han sido aceptadas (es decir, seguidores)
+    recommended_users = User.objects.exclude(
+        Q(iduser__in=following_or_requested_ids) | Q(iduser=request.user.iduser)
+    ).annotate(follower_count=Count('received_requests', filter=Q(received_requests__is_accepted=True))).order_by('?')[:5]
+
     return render(request, 'follow_requests.html', {
-        'follow_requests': follow_requests
+        'follow_requests': follow_requests,
+        'recommended_users': recommended_users
     })
 @require_POST
 @login_required

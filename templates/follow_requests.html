@@ -1,9 +1,10 @@
 {% extends 'layoutUser.html' %}
+{% load static %}
 {% block title %}Nexly: Solicitudes{% endblock %}
 {% block content %}
 
 <div class="container mt-4">
-    <h2 class="mb-4 text-center text-light">Solicitudes</h2>
+    <h2 class="mb-4 text-center">Solicitudes</h2>
 
     <!-- Mostrar alertas si están disponibles -->
     {% if request.session.follow_request_message %}
@@ -25,13 +26,15 @@
         </script>
     {% endif %}
 
-    <div class="list-group">
+    <div class="list-group mt-4">
         {% for request in follow_requests %}
         <div class="list-group-item d-flex align-items-center bg-dark text-light border-0 rounded-3 shadow-sm mb-2">
-            <img src="{% if request.from_user.profile_picture %}{{ request.from_user.profile_picture.url }}{% else %}https://via.placeholder.com/50{% endif %}" class="rounded-circle me-3" alt="Profile Picture" width="50" height="50">
+            <a href="{% url 'profile' request.from_user.nombre %}">
+                <img src="{% if request.from_user.profile_picture %}{{ request.from_user.profile_picture.url }}{% else %}https://via.placeholder.com/50{% endif %}" class="rounded-circle me-3" alt="Profile Picture" width="50" height="50">
+            </a>
             <div class="flex-grow-1">
                 <strong><a href="{% url 'profile' request.from_user.nombre %}" class="text-light text-decoration-none">{{ request.from_user.nombre }}</a></strong>
-                <span class="text-white">te ha enviado una solicitud.</span>
+                <span>te ha enviado una solicitud.</span>
             </div>
             <div>
                 <form action="{% url 'accept_follow_request' request.id %}" method="POST" class="d-inline">
@@ -47,6 +50,33 @@
         {% empty %}
         <div class="list-group-item bg-dark text-light border-0 rounded-3 shadow-sm">No tienes solicitudes pendientes.</div>
         {% endfor %}
+    </div>
+
+    <div class="recommended-friends mt-4">
+        <h4 class="text-center mb-4">Quizá conozcas a...</h4>
+        <ul class="list-unstyled">
+            {% for user in recommended_users %}
+                <li class="d-flex align-items-center justify-content-between p-3 border rounded mb-3 shadow-sm bg-dark text-light border-0">
+                    <div class="d-flex align-items-center">
+                        {% if user.profile_picture %}
+                            <img src="{{ user.profile_picture.url }}" class="rounded-circle me-3" alt="Profile Picture" width="60" height="60">
+                        {% else %}
+                        <a href="{% url 'profile' user.nombre %}">
+                            <img src="{% static 'images/imagenDefecto.png' %}" class="rounded-circle me-3" alt="Profile Picture" width="60" height="60">
+                        </a>
+                        {% endif %}
+                        <div>
+                            <a href="{% url 'profile' user.nombre %}" class="mb-1 fw-bold text-light">{{ user.nombre }}</a>
+                            <p class="mb-0">Seguidores: {{ user.follower_count }}</p>
+                        </div>
+                    </div>
+                    <form action="{% url 'send_follow_request' user.iduser %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">Enviar solicitud</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
     </div>
 </div>
 
