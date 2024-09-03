@@ -165,3 +165,30 @@ class Story(models.Model):
         else:
             days = diff.days
             return f"hace {days} días"
+        
+class Message(models.Model):
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_messages')
+    receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='received_messages')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Mensaje de {self.sender.nombre} a {self.receiver.nombre} el {self.created_at}'
+
+    def time_since_sent(self):
+        now = datetime.now(timezone.utc)
+        diff = now - self.created_at
+
+        if diff < timedelta(minutes=1):
+            return "hace un momento"
+        elif diff < timedelta(hours=1):
+            minutes = diff.seconds // 60
+            return f"hace {minutes} minutos"
+        elif diff < timedelta(days=1):
+            hours = diff.seconds // 3600
+            return f"hace {hours} horas"
+        elif diff < timedelta(days=2):
+            return "hace 1 día"
+        else:
+            days = diff.days
+            return f"hace {days} días"

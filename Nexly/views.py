@@ -15,6 +15,7 @@ from django.views.decorators.http import require_POST
 from django.db.models import Q
 import random
 from django.contrib.auth.models import User
+from .models import Message
 
 
 def login_view(request):
@@ -354,3 +355,67 @@ def clear_follow_request_message(request):
     if 'follow_request_message' in request.session:
         del request.session['follow_request_message']
     return JsonResponse({'status': 'success'})
+
+@login_required
+def inbox(request):
+    messages_received = Message.objects.filter(receiver=request.user)
+    messages_sent = Message.objects.filter(sender=request.user)
+
+    all_conversations = {}
+    
+    for message in messages_received:
+        key = (message.sender.iduser, message.receiver.iduser)
+        if key not in all_conversations or message.created_at > all_conversations[key]['last_message_time']:
+            all_conversations[key] = {
+                'user': message.sender,
+                'last_message': message.content,
+                'last_message_time': message.created_at,
+                'is_sent': False
+            }
+    
+    for message in messages_sent:
+        key = (message.receiver.iduser, message.sender.iduser)
+        if key not in all_conversations or message.created_at > all_conversations[key]['last_message_time']:
+            all_conversations[key] = {
+                'user': message.receiver,
+                'last_message': message.content,
+                'last_message_time': message.created_at,
+                'is_sent': True
+            }
+    
+    if 'q' in request.GET:
+        query = request.GET['q']
+        users = User.objects.filter(nombre__icontains=query).exclude(iduser=request.user.iduser)
+    else:
+        users = User.objects.exclude(iduser=request.user.iduser)
+
+    context = {
+        'conversations': sorted(all_conversations.values(), key=lambda x: x['last_message_time'], reverse=True),
+        'users': users,
+    }
+    return render(request, 'inbox.html', context)
+
+
+@login_required
+def send_message(request, user_id):
+    receiver = User.objects.get(id=user_id)
+
+    if request.method == 'POST':
+        content = request.POST.get('content')
+        Message.objects.create(sender=request.user, receiver=receiver, content=content)
+        return redirect('inbox')
+
+    return render(request, 'send_message.html', {'receiver': receiver})
+
+@login_required
+def conversation(request, user_id):
+    receiver = User.objects.get(iduser=user_id)
+    messages = Message.objects.filter(sender=request.user, receiver=receiver) | Message.objects.filter(sender=receiver, receiver=request.user)
+    messages = messages.order_by('created_at')
+
+    if request.method == 'POST':
+        content = request.POST.get('content')
+        Message.objects.create(sender=request.user, receiver=receiver, content=content)
+        return redirect('conversation', user_id=user_id)
+
+    return render(request, 'conversation.html', {'receiver': receiver, 'messages': messages})

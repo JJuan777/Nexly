@@ -1,0 +1,72 @@
+{% extends 'layoutUser.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+    <h1>Bandeja de Entrada</h1>
+
+        <!-- Botón para abrir el modal -->
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newChatModal">
+            <i class="bi bi-chat"></i> Nuevo Chat
+          </button>
+
+       
+          <div class="chat-list mt-4">
+            {% for conversation in conversations %}
+            <div class="chat-item d-flex align-items-center mb-3 p-2 rounded">
+                <img src="{% if conversation.user.profile_picture.url %}{{ conversation.user.profile_picture.url }}{% else %}{% static 'images/imagenDefecto.png' %}{% endif %}" 
+                    class="rounded-circle me-3" 
+                    alt="Profile Picture" 
+                    width="50" 
+                    height="50" 
+                    style="object-fit: cover;">
+                <div class="chat-info flex-grow-1">
+                    <strong>{{ conversation.user.nombre }}</strong>
+                    <p class="last-message mb-1">{{ conversation.last_message }}</p>
+                </div>
+                <div class="chat-timestamp">
+                    <small>{{ conversation.last_message_time|date:"d/m/Y H:i" }}</small>
+                </div>
+                <a href="{% url 'conversation' conversation.user.iduser %}" class="btn btn-primary btn-sm ms-3">Ver conversación</a>
+            </div>
+            {% empty %}
+            <p class="text-light">No tienes conversaciones.</p>
+            {% endfor %}
+        </div>
+        
+</div>
+
+<!-- Modal de Nuevo Chat -->
+<div class="modal fade" id="newChatModal" tabindex="-1" aria-labelledby="newChatModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #1F1F1F; color: #E0E0E0;"> <!-- Fondo oscuro y texto claro -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="newChatModalLabel">Iniciar Nuevo Chat</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="color: #E0E0E0;"></button>
+            </div>
+            <div class="modal-body">
+                <form method="get" action="{% url 'inbox' %}">
+                    <div class="mb-3">
+                        <label for="searchUser" class="form-label" style="color: #E0E0E0;">Buscar Usuario</label> <!-- Texto claro -->
+                        <input type="text" class="form-control" id="searchUser" name="q" placeholder="Buscar por nombre">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Buscar</button> <!-- Botón primario -->
+                </form>
+                <hr style="border-color: #333;"> <!-- Línea horizontal con borde oscuro -->
+                <ul class="list-group mt-3">
+                    {% for user in users %}
+                    <li class="list-group-item" style="background-color: #1E1E1E; color: #E0E0E0;">
+                        <a href="{% url 'conversation' user.iduser %}" style="color: #1DA1F2;">{{ user.nombre }}</a> <!-- Enlace azul -->
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item" style="background-color: #1E1E1E; color: #E0E0E0;">No se encontraron usuarios.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button> <!-- Botón secundario -->
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

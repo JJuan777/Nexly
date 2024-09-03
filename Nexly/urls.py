@@ -4,6 +4,7 @@ from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import clear_follow_request_message,  reject_follow_request, accept_follow_request, upload_story
+from .views import inbox, send_message, conversation
 
 urlpatterns = [
     path('', nexly_view, name='nexly'),
@@ -24,5 +25,8 @@ urlpatterns = [
     path('accept-follow-request/<int:request_id>/', accept_follow_request, name='accept_follow_request'),
     path('reject-follow-request/<int:request_id>/', reject_follow_request, name='reject_follow_request'),
     path('upload_story/', upload_story, name='upload_story'),
+    path('inbox/', inbox, name='inbox'),
+    path('send_message/<int:user_id>/', send_message, name='send_message'),
+    path('conversation/<int:user_id>/', conversation, name='conversation'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -278,4 +278,173 @@ a {
     border-radius: 10px;
     margin-bottom: 15px;
   }
-  
+  .chat-list {
+    background-color: #1F1F1F; /* Fondo oscuro para la lista de chats */
+    border: 1px solid #333; /* Borde oscuro */
+    padding: 1rem;
+    border-radius: 8px; /* Bordes redondeados */
+}
+.chat-item {
+    background-color: #2A2A2A; /* Fondo oscuro para cada elemento del chat */
+    border: 1px solid #333; /* Borde oscuro */
+    color: #E0E0E0; /* Texto claro */
+    transition: background-color 0.3s ease;
+}
+.chat-info {
+    flex: 1;
+    overflow: hidden;
+}
+.chat-info strong {
+    display: block;
+    margin-bottom: 5px;
+}
+.last-message {
+    color: #555;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.chat-timestamp {
+    text-align: right;
+    color: #ebe8e8;
+}
+.view-conversation {
+    align-self: center;
+    color: #007bff;
+    text-decoration: none;
+}
+.view-conversation:hover {
+    text-decoration: underline;
+}
+/* styles.css */
+
+.chat-list {
+    max-height: 80vh; /* Ajusta el tamaño según sea necesario */
+    overflow-y: auto;
+}
+
+.chat-item {
+    background-color: #333; /* Fondo ligero para cada elemento del chat */
+    transition: background-color 0.3s ease;
+}
+
+.chat-item:hover {
+    background-color: #333; /* Fondo más oscuro al pasar el ratón */
+}
+
+.chat-info {
+    flex-grow: 1;
+}
+
+.last-message {
+    color: #ffffff; /* Color para los mensajes recientes */
+}
+
+.chat-timestamp {
+    font-size: 0.875rem;
+}
+
+.view-conversation {
+    text-decoration: none;
+}
+
+.view-conversation:hover {
+    text-decoration: underline;
+}
+/* styles.css */
+
+.chat-container {
+    max-height: 60vh; /* Ajusta según el diseño */
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 1rem;
+    background-color: #f8f9fa;
+}
+
+.chat-message {
+    display: flex;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+
+.chat-message.sent {
+    background-color: #007bff;
+    color: #fff;
+    align-self: flex-end;
+    text-align: right;
+}
+
+.chat-message.received {
+    background-color: #e9ecef;
+    color: #000;
+    align-self: flex-start;
+}
+
+.message-info {
+    font-weight: bold;
+}
+
+.message-content {
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+
+.message-form {
+    margin-top: 1rem;
+}
+
+.form-control {
+    resize: none;
+}
+/* Estilo para la conversación de chat */
+.chat-container {
+    max-height: 500px; /* Ajusta el alto máximo según sea necesario */
+    overflow-y: auto;
+    border: 1px solid #333; /* Ajusta el borde para que se ajuste al esquema oscuro */
+    padding: 1rem;
+    background-color: #1F1F1F; /* Fondo oscuro para la conversación de chat */
+}
+
+/* Estilo para los mensajes */
+.chat-message {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+/* Mensajes enviados */
+.chat-message.sent {
+    background-color: #1DA1F2; /* Azul */
+    color: white;
+    justify-content: flex-end;
+    align-self: flex-end;
+}
+
+/* Mensajes recibidos */
+.chat-message.received {
+    background-color: #727171; /* Gris más oscuro */
+    color: #E0E0E0; /* Texto claro */
+    justify-content: flex-start;
+    align-self: flex-start;
+}
+
+/* Información del mensaje */
+.message-info {
+    font-weight: bold;
+}
+
+/* Contenido del mensaje */
+.message-content {
+    margin-left: 10px;
+}
+
+/* Formulario de mensajes */
+.message-form {
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+}

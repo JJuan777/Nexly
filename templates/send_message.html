@@ -1,0 +1,12 @@
+{% extends 'layoutUser.html' %}
+
+{% block content %}
+<h1>Enviar Mensaje a {{ receiver.nombre }}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <textarea name="content" rows="5" cols="50" placeholder="Escribe tu mensaje aquí..."></textarea>
+    <br>
+    <button type="submit">Enviar</button>
+</form>
+{% endblock %}

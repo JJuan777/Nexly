@@ -1,0 +1,30 @@
+{% extends 'layoutUser.html' %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+    <h1>{{ receiver.nombre }}</h1>
+
+    <div class="chat-container mb-4">
+        {% for message in messages %}
+        <div class="chat-message {% if message.sender.iduser == user.iduser %}sent{% else %}received{% endif %}">
+            <div class="message-info">
+                <strong>{{ message.sender.nombre }}:</strong>
+            </div>
+            <div class="message-content">
+                {{ message.content }} <br>
+                <small class="text-muted">{{ message.time_since_sent }}</small>
+            </div>
+        </div>
+        {% empty %}
+        <p>No hay mensajes en esta conversación.</p>
+        {% endfor %}
+    </div>
+
+    <form method="post" class="message-form">
+        {% csrf_token %}
+        <textarea name="content" rows="3" class="form-control" placeholder="Escribe tu mensaje aquí..."></textarea>
+        <br>
+        <button type="submit" class="btn btn-primary">Enviar</button>
+    </form>
+</div>
+{% endblock %}
