@@ -426,7 +426,7 @@ a {
 
 /* Mensajes recibidos */
 .chat-message.received {
-    background-color: #727171; /* Gris más oscuro */
+    background-color: #b5b0b0; /* Gris más oscuro */
     color: #E0E0E0; /* Texto claro */
     justify-content: flex-start;
     align-self: flex-start;

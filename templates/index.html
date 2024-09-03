@@ -125,13 +125,28 @@
             <div class="nexly-container">
                 <h1>Bienvenido, {{ user.nombre }}!</h1>
                 <p>Estamos felices de tenerte aquí. Disfruta explorando nuestra aplicación.</p>
+<!-- Formulario para publicación -->
+<div class="create-post mb-4 p-3 rounded shadow-sm" style="background-color: #2A2A2A;">
+    <div class="d-flex align-items-center mb-2">
+        <!-- Imagen de perfil -->
+        <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/imagenDefecto.png' %}{% endif %}"
+             class="rounded-circle me-2" alt="Profile Picture" width="50" height="50" style="object-fit: cover;">
+        
+        <!-- Input de publicación -->
+        <form method="POST" enctype="multipart/form-data" class="w-100">
+            {% csrf_token %}
+            <textarea name="content" class="form-control" rows="3" placeholder="¿Qué estás pensando, {{ user.nombre }}?" style="background-color: #1F1F1F; color: white; border: none;"></textarea>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <div>
+                    <button type="button" class="btn btn-light me-2">📷 Foto</button>
+                    <button type="button" class="btn btn-light">🎥 Video</button>
+                </div>
+                <button type="submit" class="btn btn-primary">Publicar</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-                <!-- Formulario para publicación -->
-                <form method="POST" class="post-form">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" name="post_content" class="btn btn-primary">Publicar</button>
-                </form><br>
 
                 <!-- Menú de filtros -->
                 <div class="mb-4">
@@ -264,6 +279,7 @@
                         </div>
                     {% endfor %}
                 </div>
+                
             </div>
         </div>
 
