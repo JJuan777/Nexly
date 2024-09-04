@@ -23,9 +23,9 @@ class RegisterForm(UserCreationForm):
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['content']
+        fields = ['content', 'image', 'video']
         widgets = {
-            'content': forms.Textarea(attrs={'class': 'form-control', 'placeholder': '¿Qué estás pensando?'})
+            'content': forms.Textarea(attrs={'class': 'form-control', 'placeholder': '¿Qué estás pensando?'}),
         }
         
 class CommentForm(forms.ModelForm):

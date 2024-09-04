@@ -448,3 +448,35 @@ a {
     flex-direction: column;
     margin-top: 10px;
 }
+.custom-file-upload {
+    position: relative;
+    display: inline-block;
+}
+.custom-file-upload label {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #3b3b3b;
+    color: #ffffff;
+    border: 1px solid #3a3a3a;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+.custom-file-upload label:hover {
+    background-color: #4a4a4a;
+}
+.custom-file-upload input[type="file"] {
+    display: none;
+}
+.btn-light {
+    background-color: #f0f0f0;
+    color: #333;
+    border: none;
+    border-radius: 5px;
+}
+.btn-light i {
+    margin-right: 5px;
+}

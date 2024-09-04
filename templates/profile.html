@@ -109,9 +109,6 @@
     <div class="mt-5">
         <h1>{{ nombre }}</h1>
     </div>
-    <!-- Aquí puedes añadir más detalles del perfil -->
-
-    <!-- Espacio debajo de la imagen de perfil -->
 
     <!-- Contador de seguidores, seguidos y publicaciones -->
     <div class="d-flex justify-content-around my-4">
@@ -144,12 +141,48 @@
     {% endif %}
 
     {% if user.nombre == nombre %}
-    <!-- Formulario para publicación -->
-    <form method="POST" class="post-form">
-        {% csrf_token %}
-        {{ form.as_p }}
+ <!-- Formulario para publicación -->
+<div class="create-post mb-4 p-3 rounded shadow-sm" style="background-color: #2A2A2A;">
+    <div class="d-flex align-items-center mb-2">
+        <!-- Imagen de perfil -->
+        <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/imagenDefecto.png' %}{% endif %}"
+             class="rounded-circle me-2" alt="Profile Picture" width="50" height="50" style="object-fit: cover;">
+        
+
+   <!-- Formulario para publicación -->
+   <form method="POST" enctype="multipart/form-data" class="post-form mb-3">
+    {% csrf_token %}
+    <div class="mb-3">
+        <textarea name="content" class="form-control" rows="3" placeholder="¿Qué estás pensando, {{ user.nombre }}?" style="background-color: #1F1F1F; color: white; border: none;" required></textarea>
+    </div>
+    
+    <div class="mb-3">
+        <div id="imagePreviewContainer" class="d-none mb-3">
+            <img id="imagePreview" src="" alt="Vista previa de la imagen" class="img-fluid" style="max-width: 150px; max-height: 150px; border-radius: 5px;">
+        </div> 
+        <div class="d-flex flex-column flex-sm-row align-items-center">
+            <div class="custom-file-upload mr-2">
+                <label for="imageUpload" class="btn btn-light">
+                    <i class="fas fa-image"></i> Subir Foto
+                </label>
+                <input type="file" id="imageUpload" name="image" accept="image/*" class="form-control-file" onchange="previewImage(event)" style="display: none;">
+            </div>
+            <div class="custom-file-upload mr-2">
+                <label for="videoUpload" class="btn btn-light">
+                    <i class="fas fa-video"></i> Subir Video
+                </label>
+                <input type="file" id="videoUpload" name="video" accept="video/*" class="form-control-file" style="display: none;">
+            </div>
+            
+        </div>
+    </div>
+    <div class="d-flex justify-content-between align-items-center">
         <button type="submit" name="post_content" class="btn btn-primary">Publicar</button>
-    </form>
+    </div>
+</form>
+
+    </div>
+</div>
     {% endif %}
 
     <div class="posts-container">
@@ -161,8 +194,18 @@
                     class="rounded-circle" alt="Profile Picture" width="50" height="50" style="object-fit: cover;">
                 <div class="ms-3">
                     {% if post.original_post %}
-                                    <p><strong><a href="{% url 'profile' post.user.nombre %}">{{ post.user.nombre }}</a></strong> compartió una publicación de <strong><a href="{% url 'profile' post.original_post.user.nombre %}">{{ post.original_post.user.nombre }}</a></strong>:</p>
-                                    <p>{{ post.original_post.content }}</p>
+                    <p><strong><a href="{% url 'profile' post.user.nombre %}">{{ post.user.nombre }}</a></strong> compartió una publicación de <strong><a href="{% url 'profile' post.original_post.user.nombre %}">{{ post.original_post.user.nombre }}</a></strong>:</p>
+                    <p>{{ post.original_post.content }}</p>
+                    
+                    <!-- Mostrar imagen o video si están presentes en la publicación original -->
+                    {% if post.original_post.image %}
+                        <img src="{{ post.original_post.image.url }}" alt="Imagen" class="img-fluid mt-2">
+                    {% elif post.original_post.video %}
+                        <video controls class="img-fluid mt-2">
+                            <source src="{{ post.original_post.video.url }}" type="video/mp4">
+                            Tu navegador no soporta la etiqueta de video.
+                        </video>
+                    {% endif %}
                                     {% else %}
                                         <strong><a href="{% url 'profile' post.user.nombre %}">{{ post.user.nombre }}</a></strong>
                                         <p id="post-content-{{ post.id }}">{{ post.content }}</p>
@@ -172,9 +215,9 @@
                 </div>
             </div>
 
-            <!-- Botones alineados -->
-            <div class="d-flex gap-2 mb-2">
-                <a href="{% url 'like_post' post.id %}" class="btn btn-light">
+              <!-- Botones alineados y ocupando todo el espacio -->
+              <div class="d-grid gap-2 d-md-flex justify-content-md-between mb-2">
+                <a href="{% url 'like_post' post.id %}" class="btn btn-secondary w-100">
                     {% if user in post.like_set.all %}
                     <i class="fas fa-thumbs-up"></i>
                     Like ({{ post.like_set.count }})
@@ -184,11 +227,11 @@
                     {% endif %}
                 </a>
 
-                <button class="btn btn-light" onclick="toggleCommentForm({{ post.id }})">
+                <button class="btn btn-secondary w-100" onclick="toggleCommentForm({{ post.id }})">
                     <i class="fas fa-comment"></i> Comentar
                 </button>
 
-                <a href="{% url 'share_post' post.id %}" class="btn btn-light">
+                <a href="{% url 'share_post' post.id %}" class="btn btn-secondary w-100">
                     <i class="fas fa-share"></i>
                     Compartir
                 </a>

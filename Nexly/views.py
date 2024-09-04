@@ -81,14 +81,22 @@ def upload_story(request):
 def nexly_view(request):
     if request.method == 'POST':
         if 'post_content' in request.POST:
-            form = PostForm(request.POST)
+            form = PostForm(request.POST, request.FILES)  # Agregar request.FILES para manejar los archivos
             if form.is_valid():
                 post = form.save(commit=False)
                 post.user = request.user
+                
+                # Guardar la imagen o video si están presentes
+                if 'photo' in request.FILES:
+                    post.photo = request.FILES['photo']
+                elif 'video' in request.FILES:
+                    post.video = request.FILES['video']
+                
                 post.save()
                 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                     return JsonResponse({'status': 'success', 'post_id': post.id})
                 return redirect('nexly')
+        
         elif 'comment_content' in request.POST:
             post_id = request.POST.get('post_id')
             post = get_object_or_404(Post, id=post_id)

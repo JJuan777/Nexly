@@ -125,6 +125,7 @@
             <div class="nexly-container">
                 <h1>Bienvenido, {{ user.nombre }}!</h1>
                 <p>Estamos felices de tenerte aquí. Disfruta explorando nuestra aplicación.</p>
+                
 <!-- Formulario para publicación -->
 <div class="create-post mb-4 p-3 rounded shadow-sm" style="background-color: #2A2A2A;">
     <div class="d-flex align-items-center mb-2">
@@ -132,18 +133,41 @@
         <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/imagenDefecto.png' %}{% endif %}"
              class="rounded-circle me-2" alt="Profile Picture" width="50" height="50" style="object-fit: cover;">
         
-        <!-- Input de publicación -->
-        <form method="POST" enctype="multipart/form-data" class="w-100">
-            {% csrf_token %}
-            <textarea name="content" class="form-control" rows="3" placeholder="¿Qué estás pensando, {{ user.nombre }}?" style="background-color: #1F1F1F; color: white; border: none;"></textarea>
-            <div class="d-flex justify-content-between align-items-center mt-2">
-                <div>
-                    <button type="button" class="btn btn-light me-2">📷 Foto</button>
-                    <button type="button" class="btn btn-light">🎥 Video</button>
-                </div>
-                <button type="submit" class="btn btn-primary">Publicar</button>
+
+   <!-- Formulario para publicación -->
+   <form method="POST" enctype="multipart/form-data" class="post-form">
+    {% csrf_token %}
+    <div class="mb-3">
+        <textarea name="content" class="form-control" rows="3" placeholder="¿Qué estás pensando, {{ user.nombre }}?" style="background-color: #1F1F1F; color: white; border: none;" required></textarea>
+    </div>
+    
+    <div class="mb-3">
+        <div id="imagePreviewContainer" class="d-none mb-3">
+            <img id="imagePreview" src="" alt="Vista previa de la imagen" class="img-fluid" style="max-width: 150px; max-height: 150px; border-radius: 5px;">
+        </div> 
+        <div class="d-flex flex-column flex-sm-row align-items-center">
+            <div class="custom-file-upload mr-2">
+                <label for="imageUpload" class="btn btn-light">
+                    <i class="fas fa-image"></i> Subir Foto
+                </label>
+                <input type="file" id="imageUpload" name="image" accept="image/*" class="form-control-file" onchange="previewImage(event)" style="display: none;">
             </div>
-        </form>
+            <div class="custom-file-upload mr-2">
+                <label for="videoUpload" class="btn btn-light">
+                    <i class="fas fa-video"></i> Subir Video
+                </label>
+                <input type="file" id="videoUpload" name="video" accept="video/*" class="form-control-file" style="display: none;">
+            </div>
+            
+        </div>
+    </div>
+    <div class="d-flex justify-content-between align-items-center">
+        <button type="submit" name="post_content" class="btn btn-primary">Publicar</button>
+    </div>
+</form>
+
+<br>
+
     </div>
 </div>
 
@@ -158,127 +182,147 @@
                     </a>
                 </div>
 
-                <!-- Contenido de publicaciones -->
                 <div class="posts-container">
                     {% for post in posts %}
-                        <div class="post position-relative mb-4">
-                            <!-- Imagen de perfil -->
-                            <div class="d-flex align-items-start mb-2">
-                                <img src="{% if post.user.profile_picture %}{{ post.user.profile_picture.url }}{% else %}{% static 'images/imagenDefecto.png' %}{% endif %}" 
-                                class="rounded-circle" 
-                                alt="Profile Picture" 
-                                width="50" 
-                                height="50" 
-                                style="object-fit: cover;">                           
-                           
-                                <div class="ms-3">
-                                    {% if post.original_post %}
+                    <div class="post position-relative mb-4">
+                        <!-- Imagen de perfil -->
+                        <div class="d-flex align-items-start mb-2">
+                            <img src="{% if post.user.profile_picture %}{{ post.user.profile_picture.url }}{% else %}{% static 'images/imagenDefecto.png' %}{% endif %}"
+                                class="rounded-circle" alt="Profile Picture" width="50" height="50" style="object-fit: cover;">
+                            <div class="ms-3">
+                                {% if post.original_post %}
                                     <p><strong><a href="{% url 'profile' post.user.nombre %}">{{ post.user.nombre }}</a></strong> compartió una publicación de <strong><a href="{% url 'profile' post.original_post.user.nombre %}">{{ post.original_post.user.nombre }}</a></strong>:</p>
                                     <p>{{ post.original_post.content }}</p>
-                                    {% else %}
-                                        <strong><a href="{% url 'profile' post.user.nombre %}">{{ post.user.nombre }}</a></strong>
-                                        <p id="post-content-{{ post.id }}">{{ post.content }}</p>
+                                    
+                                    <!-- Mostrar imagen o video si están presentes en la publicación original -->
+                                    {% if post.original_post.image %}
+                                        <img src="{{ post.original_post.image.url }}" alt="Imagen" class="img-fluid mt-2">
+                                    {% elif post.original_post.video %}
+                                        <video controls class="img-fluid mt-2">
+                                            <source src="{{ post.original_post.video.url }}" type="video/mp4">
+                                            Tu navegador no soporta la etiqueta de video.
+                                        </video>
                                     {% endif %}
-                                    <!-- Mostrar tiempo relativo -->
-                                    <p><small class="post-time" data-timestamp="{{ post.created_at|date:'c' }}"></small></p>
-                                </div>
+                                {% else %}
+                                    <strong><a href="{% url 'profile' post.user.nombre %}">{{ post.user.nombre }}</a></strong>
+                                    <p id="post-content-{{ post.id }}">{{ post.content }}</p>
+                                    
+                                    <!-- Mostrar imagen o video si están presentes -->
+                                    {% if post.image %}
+                                        <img src="{{ post.image.url }}" alt="Imagen" class="img-fluid mt-2">
+                                    {% elif post.video %}
+                                        <video controls class="img-fluid mt-2">
+                                            <source src="{{ post.video.url }}" type="video/mp4">
+                                            Tu navegador no soporta la etiqueta de video.
+                                        </video>
+                                    {% endif %}
+                                {% endif %}
+                                <!-- Mostrar tiempo relativo -->
+                                <p><small class="post-time" data-timestamp="{{ post.created_at|date:'c' }}"></small></p>
                             </div>
-
-                    <!-- Botones alineados -->
-                    <div class="d-flex gap-2 mb-2 w-100 justify-content-between">
-                        <a href="{% url 'like_post' post.id %}" class="btn btn-light flex-fill text-center">
+                        </div>
+                
+                        <!-- Botones alineados y ocupando todo el espacio -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-between mb-2">
+                        <a href="{% url 'like_post' post.id %}" class="btn btn-secondary w-100">
                             {% if user in post.like_set.all %}
-                                <i class="fas fa-thumbs-up"></i> 
-                                Like ({{ post.like_set.count }})
+                            <i class="fas fa-thumbs-up"></i>
+                            Like ({{ post.like_set.count }})
                             {% else %}
-                                <i class="fas fa-thumbs-up"></i> 
-                                Like ({{ post.like_set.count }})
+                            <i class="fas fa-thumbs-up"></i>
+                            Like ({{ post.like_set.count }})
                             {% endif %}
                         </a>
 
-                        <button class="btn btn-light flex-fill text-center" onclick="toggleCommentForm({{ post.id }})">
+                        <button class="btn btn-secondary w-100" onclick="toggleCommentForm({{ post.id }})">
                             <i class="fas fa-comment"></i> Comentar
                         </button>
 
-                        <a href="{% url 'share_post' post.id %}" class="btn btn-light flex-fill text-center">
-                            <i class="fas fa-share"></i> Compartir
+                        <a href="{% url 'share_post' post.id %}" class="btn btn-secondary w-100">
+                            <i class="fas fa-share"></i>
+                            Compartir
                         </a>
                     </div>
 
-
-                            {% if post.user == user %}
-                                <!-- Menú desplegable -->
-                                <div class="dropdown position-absolute top-0 end-0 mt-2 me-2">
-                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton-{{ post.id }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                        ⋮
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton-{{ post.id }}">
-                                        <li><a class="dropdown-item" href="#" data-post-id="{{ post.id }}" onclick="showEditForm(event)">Editar</a></li>
-                                        <li><a class="dropdown-item" href="{% url 'delete_post' post.id %}" onclick="return confirm('¿Estás seguro de que deseas eliminar esta publicación?')">Eliminar</a></li>
-                                    </ul>
-                                </div>
-
-                                <div id="edit-form-{{ post.id }}" style="display: none;">
-                                    <textarea class="form-control mb-2 textarea" id="edit-post-content-{{ post.id }}">{{ post.content }}</textarea>
-                                    <button class="btn btn-primary save-post-btn" data-post-id="{{ post.id }}">Guardar Cambios</button>
-                                </div>
-                            {% endif %}
-
-                            <!-- Etiqueta de contador de comentarios -->
-                            <p class="comment-count" data-post-id="{{ post.id }}" data-count="{{ post.comments.count }}" onclick="toggleComments({{ post.id }})">
-                                {% if post.comments.count == 0 %}
-                                    <!-- No texto cuando no hay comentarios -->
-                                {% elif post.comments.count == 1 %}
-                                    1 comentario
-                                {% else %}
-                                    {{ post.comments.count }} comentarios
-                                {% endif %}
-                            </p>
-
-                            <!-- Formulario para comentarios -->
-                            <div id="comment-form-{{ post.id }}" class="comment-form" style="display: none;">
-                                <form method="POST">
-                                    {% csrf_token %}
-                                    {{ comment_form.as_p }}
-                                    <input type="hidden" name="post_id" value="{{ post.id }}">
-                                    <button type="submit" name="comment_content" class="btn btn-secondary">Comentar</button>
-                                </form>
-                            </div>
-
-                         <!-- Comentarios -->
-                            <div id="comments-{{ post.id }}" class="comments" style="display: none;">
-                                {% for comment in post.comments.all %}
-                                    <div class="comment d-flex align-items-start mb-3">
-                                        <!-- Imagen del usuario -->
-                                        <img src="{% if comment.user.profile_picture %}{{ comment.user.profile_picture.url }}{% else %}{% static 'images/imagenDefecto.png' %}{% endif %}" 
-                                        class="img-fluid rounded-circle me-3" 
-                                        alt="User Image" 
-                                        width="50" 
-                                        height="50" 
-                                        style="object-fit: cover;">
-
-                                        <div>
-                                            <p><strong><a href="{% url 'profile' comment.user.nombre %}">{{ comment.user.nombre }}</a></strong> comentó:</p>
-                                            <p>{{ comment.content }}</p>
-                                            <p><small>{{ comment.time_since_commented }}</small></p>
-                                            <a href="{% url 'like_comment' comment.id %}" class="btn btn-light">
-                                                {% if user in comment.commentlike_set.all %}
-                                                    <i class="fas fa-thumbs-up"></i> 
-                                                    Like ({{ comment.commentlike_set.count }})
-                                                {% else %} 
-                                                    <i class="fas fa-thumbs-up"></i> 
-                                                    Like ({{ comment.commentlike_set.count }})
-                                                {% endif %}
-                                            </a>
-                                        </div>
-                                    </div>
-                                {% empty %}
-                                    <p>No hay comentarios aún.</p>
-                                {% endfor %}
-                            </div>
+                
+                        {% if post.user == user %}
+                        <!-- Menú desplegable -->
+                        <div class="dropdown position-absolute top-0 end-0 mt-2 me-2">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton-{{ post.id }}"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                ⋮
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton-{{ post.id }}">
+                                <li><a class="dropdown-item" href="#" data-post-id="{{ post.id }}"
+                                        onclick="showEditForm(event)">Editar</a></li>
+                                <li><a class="dropdown-item" href="{% url 'delete_post' post.id %}"
+                                        onclick="return confirm('¿Estás seguro de que deseas eliminar esta publicación?')">Eliminar</a>
+                                </li>
+                            </ul>
                         </div>
+                
+                        <div id="edit-form-{{ post.id }}" style="display: none;">
+                            <textarea class="form-control mb-2 textarea"
+                                id="edit-post-content-{{ post.id }}">{{ post.content }}</textarea>
+                            <button class="btn btn-primary save-post-btn" data-post-id="{{ post.id }}">Guardar Cambios</button>
+                        </div>
+                        {% endif %}
+                
+                        <!-- Etiqueta de contador de comentarios -->
+                        <p class="comment-count" data-post-id="{{ post.id }}" data-count="{{ post.comments.count }}"
+                            onclick="toggleComments({{ post.id }})">
+                            {% if post.comments.count == 0 %}
+                            <!-- No texto cuando no hay comentarios -->
+                            {% elif post.comments.count == 1 %}
+                            1 comentario
+                            {% else %}
+                            {{ post.comments.count }} comentarios
+                            {% endif %}
+                        </p>
+                
+                        <!-- Formulario para comentarios -->
+                        <div id="comment-form-{{ post.id }}" class="comment-form" style="display: none;">
+                            <form method="POST">
+                                {% csrf_token %}
+                                {{ comment_form.as_p }}
+                                <input type="hidden" name="post_id" value="{{ post.id }}">
+                                <button type="submit" name="comment_content" class="btn btn-secondary">Comentar</button>
+                            </form>
+                        </div>
+                
+                        <!-- Comentarios -->
+                        <div id="comments-{{ post.id }}" class="comments" style="display: none;">
+                            {% for comment in post.comments.all %}
+                            <div class="comment d-flex align-items-start mb-3">
+                                <!-- Imagen del usuario -->
+                                <img src="{% if comment.user.profile_picture %}{{ comment.user.profile_picture.url }}{% else %}{% static 'images/imagenDefecto.png' %}{% endif %}"
+                                    class="img-fluid rounded-circle me-3" alt="User Image" width="50" height="50"
+                                    style="object-fit: cover;">
+                
+                                <div>
+                                    <p><strong><a href="{% url 'profile' comment.user.nombre %}">{{ comment.user.nombre }}</a></strong> comentó:</p>
+                                    <p>{{ comment.content }}</p>
+                                    <p><small>{{ comment.time_since_commented }}</small></p>
+                                    <a href="{% url 'like_comment' comment.id %}" class="btn btn-light">
+                                        {% if user in comment.commentlike_set.all %}
+                                        <i class="fas fa-thumbs-up"></i>
+                                        Like ({{ comment.commentlike_set.count }})
+                                        {% else %}
+                                        <i class="fas fa-thumbs-up"></i>
+                                        Like ({{ comment.commentlike_set.count }})
+                                        {% endif %}
+                                    </a>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <p>No hay comentarios aún.</p>
+                            {% endfor %}
+                        </div>
+                
+                    </div>
                     {% endfor %}
                 </div>
+                
                 
             </div>
         </div>
@@ -444,5 +488,24 @@ function toggleCommentForm(postId) {
             document.getElementById("modal-story-time").textContent = storyTime + " ago";
         }
     
+    </script>
+    <script>
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+            const imagePreview = document.getElementById('imagePreview');
+    
+            if (file) {
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreviewContainer.classList.remove('d-none');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.src = '';
+                imagePreviewContainer.classList.add('d-none');
+            }
+        }
     </script>
 {% endblock %}
