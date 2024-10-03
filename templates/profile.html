@@ -141,48 +141,64 @@
     {% endif %}
 
     {% if user.nombre == nombre %}
- <!-- Formulario para publicación -->
+<!-- Formulario para publicación -->  
 <div class="create-post mb-4 p-3 rounded shadow-sm" style="background-color: #2A2A2A;">
     <div class="d-flex align-items-center mb-2">
         <!-- Imagen de perfil -->
         <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/imagenDefecto.png' %}{% endif %}"
-             class="rounded-circle me-2" alt="Profile Picture" width="50" height="50" style="object-fit: cover;">
-        
+             class="rounded-circle me-2" alt="Profile Picture" width="50" height="50" style="object-fit: cover; margin-top: -10px;">
 
-   <!-- Formulario para publicación -->
-   <form method="POST" enctype="multipart/form-data" class="post-form mb-3">
-    {% csrf_token %}
-    <div class="mb-3">
-        <textarea name="content" class="form-control" rows="3" placeholder="¿Qué estás pensando, {{ user.nombre }}?" style="background-color: #1F1F1F; color: white; border: none;" required></textarea>
-    </div>
-    
-    <div class="mb-3">
-        <div id="imagePreviewContainer" class="d-none mb-3">
-            <img id="imagePreview" src="" alt="Vista previa de la imagen" class="img-fluid" style="max-width: 150px; max-height: 150px; border-radius: 5px;">
-        </div> 
-        <div class="d-flex flex-column flex-sm-row align-items-center">
-            <div class="custom-file-upload mr-2">
-                <label for="imageUpload" class="btn btn-light">
-                    <i class="fas fa-image"></i> Subir Foto
-                </label>
-                <input type="file" id="imageUpload" name="image" accept="image/*" class="form-control-file" onchange="previewImage(event)" style="display: none;">
+        <!-- Formulario para publicación -->
+        <form method="POST" enctype="multipart/form-data" class="post-form w-100">
+            {% csrf_token %}
+            <div class="mb-3">
+                <textarea name="content" class="form-control w-100" rows="3" placeholder="¿Qué estás pensando, {{ user.nombre }}?" style="background-color: #1F1F1F; color: white; border: none;" required></textarea>
             </div>
-            <div class="custom-file-upload mr-2">
-                <label for="videoUpload" class="btn btn-light">
-                    <i class="fas fa-video"></i> Subir Video
-                </label>
-                <input type="file" id="videoUpload" name="video" accept="video/*" class="form-control-file" style="display: none;">
-            </div>
-            
-        </div>
-    </div>
-    <div class="d-flex justify-content-between align-items-center">
-        <button type="submit" name="post_content" class="btn btn-primary">Publicar</button>
-    </div>
-</form>
 
+            <div class="mb-3 position-relative">
+                <!-- Vista previa de la imagen -->
+                <div id="imagePreviewContainer" class="d-none mb-3 position-relative" style="max-width: 150px;">
+                    <img id="imagePreview" src="" alt="Vista previa de la imagen" class="img-fluid" style="max-width: 150px; max-height: 150px; border-radius: 5px;">
+                    <span id="removeImageIcon" class="position-absolute text-white bg-dark" onclick="removeImage()" style="top: -10px; right: -10px; cursor: pointer; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+
+                <!-- Vista previa del video -->
+                <div id="videoPreviewContainer" class="d-none mb-3 position-relative" style="max-width: 150px;">
+                    <video id="videoPreview" controls style="max-width: 150px; max-height: 150px; border-radius: 5px;">
+                        <source id="videoSource" src="" type="video/mp4">
+                        Tu navegador no soporta la reproducción de videos.
+                    </video>
+                    <span id="removeVideoIcon" class="position-absolute text-white bg-dark" onclick="removeVideo()" style="top: -10px; right: -10px; cursor: pointer; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+
+                <!-- Botones de subir imagen y video en una fila siempre -->
+                <div class="d-flex justify-content-start gap-2">
+                    <div class="custom-file-upload">
+                        <label for="imageUpload" class="btn btn-light">
+                            <i class="fas fa-image"></i> Imagen
+                        </label>
+                        <input type="file" id="imageUpload" name="image" accept="image/*" class="form-control-file" onchange="previewImage(event)" style="display: none;">
+                    </div>
+                    <div class="custom-file-upload">
+                        <label for="videoUpload" class="btn btn-light">
+                            <i class="fas fa-video"></i> Video
+                        </label>
+                        <input type="file" id="videoUpload" name="video" accept="video/*" class="form-control-file" onchange="previewVideo(event)" style="display: none;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <button type="submit" name="post_content" class="btn btn-primary">Publicar</button>
+            </div>
+        </form>
     </div>
 </div>
+
     {% endif %}
 
     <div class="posts-container">
@@ -194,49 +210,60 @@
                     class="rounded-circle" alt="Profile Picture" width="50" height="50" style="object-fit: cover;">
                 <div class="ms-3">
                     {% if post.original_post %}
-                    <p><strong><a href="{% url 'profile' post.user.nombre %}">{{ post.user.nombre }}</a></strong> compartió una publicación de <strong><a href="{% url 'profile' post.original_post.user.nombre %}">{{ post.original_post.user.nombre }}</a></strong>:</p>
-                    <p>{{ post.original_post.content }}</p>
-                    
-                    <!-- Mostrar imagen o video si están presentes en la publicación original -->
-                    {% if post.original_post.image %}
-                        <img src="{{ post.original_post.image.url }}" alt="Imagen" class="img-fluid mt-2">
-                    {% elif post.original_post.video %}
-                        <video controls class="img-fluid mt-2">
-                            <source src="{{ post.original_post.video.url }}" type="video/mp4">
-                            Tu navegador no soporta la etiqueta de video.
-                        </video>
+                        <p><strong><a href="{% url 'profile' post.user.nombre %}">{{ post.user.nombre }}</a></strong> compartió una publicación de <strong><a href="{% url 'profile' post.original_post.user.nombre %}">{{ post.original_post.user.nombre }}</a></strong>:</p>
+                        <p>{{ post.original_post.content }}</p>
+                        
+                        <!-- Mostrar imagen o video si están presentes en la publicación original -->
+                        {% if post.original_post.image %}
+                            <img src="{{ post.original_post.image.url }}" alt="Imagen" class="img-fluid mt-2">
+                        {% elif post.original_post.video %}
+                            <video controls class="img-fluid mt-2">
+                                <source src="{{ post.original_post.video.url }}" type="video/mp4">
+                                Tu navegador no soporta la etiqueta de video.
+                            </video>
+                        {% endif %}
+                    {% else %}
+                        <strong><a href="{% url 'profile' post.user.nombre %}">{{ post.user.nombre }}</a></strong>
+                        <p id="post-content-{{ post.id }}">{{ post.content }}</p>
+                        
+                        <!-- Mostrar imagen o video si están presentes -->
+                        {% if post.image %}
+                            <img src="{{ post.image.url }}" alt="Imagen" class="img-fluid mt-2">
+                        {% elif post.video %}
+                            <video controls class="img-fluid mt-2">
+                                <source src="{{ post.video.url }}" type="video/mp4">
+                                Tu navegador no soporta la etiqueta de video.
+                            </video>
+                        {% endif %}
                     {% endif %}
-                                    {% else %}
-                                        <strong><a href="{% url 'profile' post.user.nombre %}">{{ post.user.nombre }}</a></strong>
-                                        <p id="post-content-{{ post.id }}">{{ post.content }}</p>
-                                    {% endif %}
                     <!-- Mostrar tiempo relativo -->
                     <p><small class="post-time" data-timestamp="{{ post.created_at|date:'c' }}"></small></p>
                 </div>
             </div>
+    
+            <!-- Botones alineados y ocupando todo el espacio -->
+        <div class="d-grid gap-2 d-md-flex justify-content-md-between mb-2">
+            <a href="{% url 'like_post' post.id %}" class="btn btn-secondary w-100">
+                {% if user in post.like_set.all %}
+                <i class="fas fa-thumbs-up"></i>
+                Like ({{ post.like_set.count }})
+                {% else %}
+                <i class="fas fa-thumbs-up"></i>
+                Like ({{ post.like_set.count }})
+                {% endif %}
+            </a>
 
-              <!-- Botones alineados y ocupando todo el espacio -->
-              <div class="d-grid gap-2 d-md-flex justify-content-md-between mb-2">
-                <a href="{% url 'like_post' post.id %}" class="btn btn-secondary w-100">
-                    {% if user in post.like_set.all %}
-                    <i class="fas fa-thumbs-up"></i>
-                    Like ({{ post.like_set.count }})
-                    {% else %}
-                    <i class="fas fa-thumbs-up"></i>
-                    Like ({{ post.like_set.count }})
-                    {% endif %}
-                </a>
+            <button class="btn btn-secondary w-100" onclick="toggleCommentForm({{ post.id }})">
+                <i class="fas fa-comment"></i> Comentar
+            </button>
 
-                <button class="btn btn-secondary w-100" onclick="toggleCommentForm({{ post.id }})">
-                    <i class="fas fa-comment"></i> Comentar
-                </button>
+            <a href="{% url 'share_post' post.id %}" class="btn btn-secondary w-100">
+                <i class="fas fa-share"></i>
+                Compartir
+            </a>
+        </div>
 
-                <a href="{% url 'share_post' post.id %}" class="btn btn-secondary w-100">
-                    <i class="fas fa-share"></i>
-                    Compartir
-                </a>
-            </div>
-
+    
             {% if post.user == user %}
             <!-- Menú desplegable -->
             <div class="dropdown position-absolute top-0 end-0 mt-2 me-2">
@@ -252,14 +279,14 @@
                     </li>
                 </ul>
             </div>
-
+    
             <div id="edit-form-{{ post.id }}" style="display: none;">
                 <textarea class="form-control mb-2 textarea"
                     id="edit-post-content-{{ post.id }}">{{ post.content }}</textarea>
                 <button class="btn btn-primary save-post-btn" data-post-id="{{ post.id }}">Guardar Cambios</button>
             </div>
             {% endif %}
-
+    
             <!-- Etiqueta de contador de comentarios -->
             <p class="comment-count" data-post-id="{{ post.id }}" data-count="{{ post.comments.count }}"
                 onclick="toggleComments({{ post.id }})">
@@ -271,7 +298,7 @@
                 {{ post.comments.count }} comentarios
                 {% endif %}
             </p>
-
+    
             <!-- Formulario para comentarios -->
             <div id="comment-form-{{ post.id }}" class="comment-form" style="display: none;">
                 <form method="POST">
@@ -281,7 +308,7 @@
                     <button type="submit" name="comment_content" class="btn btn-secondary">Comentar</button>
                 </form>
             </div>
-
+    
             <!-- Comentarios -->
             <div id="comments-{{ post.id }}" class="comments" style="display: none;">
                 {% for comment in post.comments.all %}
@@ -290,10 +317,9 @@
                     <img src="{% if comment.user.profile_picture %}{{ comment.user.profile_picture.url }}{% else %}{% static 'images/imagenDefecto.png' %}{% endif %}"
                         class="img-fluid rounded-circle me-3" alt="User Image" width="50" height="50"
                         style="object-fit: cover;">
-
+    
                     <div>
-                        <p><strong><a href="{% url 'profile' comment.user.nombre %}">{{ comment.user.nombre
-                                    }}</a></strong> comentó:</p>
+                        <p><strong><a href="{% url 'profile' comment.user.nombre %}">{{ comment.user.nombre }}</a></strong> comentó:</p>
                         <p>{{ comment.content }}</p>
                         <p><small>{{ comment.time_since_commented }}</small></p>
                         <a href="{% url 'like_comment' comment.id %}" class="btn btn-light">
@@ -311,7 +337,7 @@
                 <p>No hay comentarios aún.</p>
                 {% endfor %}
             </div>
-
+    
         </div>
         {% endfor %}
     </div>
@@ -426,5 +452,6 @@
         comments.style.display = comments.style.display === 'none' ? 'block' : 'none';
     }
 </script>
-
+   <!-- Mostrar y eliminar img/videos -->
+   <script src="{% static 'js/PreviewImages.js' %}"></script>
 {% endblock %}

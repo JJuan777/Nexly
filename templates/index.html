@@ -89,7 +89,7 @@
     </div>
 </div>
 
- <!-- Modal -->
+<!-- Modal -->
 <div class="modal fade" id="storyModal" tabindex="-1" aria-labelledby="storyModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg"> <!-- Ajuste el tamaño del modal -->
         <div class="modal-content" style="background-color: #2A2A2A; color: #FFFFFF;">
@@ -110,7 +110,7 @@
             <div class="modal-body d-flex flex-column align-items-center" style="overflow: hidden;">
                 <!-- Imagen de la historia ajustada al tamaño del modal -->
                 <div class="modal-image-container"
-                    style="width: 100%; height: 70%; display: flex; justify-content: center; align-items: center;">
+                    style="width: 100%; max-height: 500px; display: flex; justify-content: center; align-items: center;">
                     <img id="modal-story-image" src="" alt="Story Image"
                         style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 10px; margin-bottom: 15px;">
                 </div>
@@ -119,68 +119,101 @@
     </div>
 </div>
 
+
     <div class="row">
         <!-- Columna principal que ocupa dos tercios del ancho -->
         <div class="col-lg-8">
             <div class="nexly-container">
-                <h1>Bienvenido, {{ user.nombre }}!</h1>
-                <p>Estamos felices de tenerte aquí. Disfruta explorando nuestra aplicación.</p>
                 
-<!-- Formulario para publicación -->
+<!-- Formulario para publicación --> 
 <div class="create-post mb-4 p-3 rounded shadow-sm" style="background-color: #2A2A2A;">
     <div class="d-flex align-items-center mb-2">
         <!-- Imagen de perfil -->
         <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/imagenDefecto.png' %}{% endif %}"
-             class="rounded-circle me-2" alt="Profile Picture" width="50" height="50" style="object-fit: cover;">
-        
+        class="rounded-circle me-2" alt="Profile Picture" width="50" height="50" style="object-fit: cover; margin-top: -180px;"> <!-- Ajuste de margen superior -->
 
-   <!-- Formulario para publicación -->
-   <form method="POST" enctype="multipart/form-data" class="post-form">
-    {% csrf_token %}
-    <div class="mb-3">
-        <textarea name="content" class="form-control" rows="3" placeholder="¿Qué estás pensando, {{ user.nombre }}?" style="background-color: #1F1F1F; color: white; border: none;" required></textarea>
-    </div>
-    
-    <div class="mb-3">
-        <div id="imagePreviewContainer" class="d-none mb-3">
-            <img id="imagePreview" src="" alt="Vista previa de la imagen" class="img-fluid" style="max-width: 150px; max-height: 150px; border-radius: 5px;">
-        </div> 
-        <div class="d-flex flex-column flex-sm-row align-items-center">
-            <div class="custom-file-upload mr-2">
-                <label for="imageUpload" class="btn btn-light">
-                    <i class="fas fa-image"></i> Subir Foto
-                </label>
-                <input type="file" id="imageUpload" name="image" accept="image/*" class="form-control-file" onchange="previewImage(event)" style="display: none;">
+        <!-- Formulario para publicación -->
+        <form method="POST" enctype="multipart/form-data" class="post-form w-100">
+            {% csrf_token %}
+            <div class="mb-3">
+                <textarea name="content" class="form-control w-100" rows="3" placeholder="¿Qué estás pensando, {{ user.nombre }}?" style="background-color: #1F1F1F; color: white; border: none;" required></textarea>
             </div>
-            <div class="custom-file-upload mr-2">
-                <label for="videoUpload" class="btn btn-light">
-                    <i class="fas fa-video"></i> Subir Video
-                </label>
-                <input type="file" id="videoUpload" name="video" accept="video/*" class="form-control-file" style="display: none;">
+
+            <div class="mb-3 position-relative">
+                <!-- Vista previa de la imagen -->
+                <div id="imagePreviewContainer" class="d-none mb-3 position-relative" style="max-width: 150px;">
+                    <img id="imagePreview" src="" alt="Vista previa de la imagen" class="img-fluid" style="max-width: 150px; max-height: 150px; border-radius: 5px;">
+                    <span id="removeImageIcon" class="position-absolute text-white bg-dark" onclick="removeImage()" style="top: -10px; right: -10px; cursor: pointer; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+
+                <!-- Vista previa del video -->
+                <div id="videoPreviewContainer" class="d-none mb-3 position-relative" style="max-width: 150px;">
+                    <video id="videoPreview" controls style="max-width: 150px; max-height: 150px; border-radius: 5px;">
+                        <source id="videoSource" src="" type="video/mp4">
+                        Tu navegador no soporta la reproducción de videos.
+                    </video>
+                    <span id="removeVideoIcon" class="position-absolute text-white bg-dark" onclick="removeVideo()" style="top: -10px; right: -10px; cursor: pointer; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+
+                <!-- Botones de subir imagen y video en una fila siempre -->
+                <div class="d-flex justify-content-start gap-2">
+                    <div class="custom-file-upload">
+                        <label for="imageUpload" class="btn btn-light">
+                            <i class="fas fa-image"></i> Imagen
+                        </label>
+                        <input type="file" id="imageUpload" name="image" accept="image/*" class="form-control-file" onchange="previewImage(event)" style="display: none;">
+                    </div>
+                    <div class="custom-file-upload">
+                        <label for="videoUpload" class="btn btn-light">
+                            <i class="fas fa-video"></i> Video
+                        </label>
+                        <input type="file" id="videoUpload" name="video" accept="video/*" class="form-control-file" onchange="previewVideo(event)" style="display: none;">
+                    </div>
+                </div>
+
+                <!-- Botón para añadir etiquetas -->
+                <div class="mt-3" style="margin-top: 15px;">
+                    <button type="button" id="showTagInputBtn" class="btn btn-light" style="margin-bottom: 10px;">
+                        <i class="fas fa-tags"></i> Etiquetas
+                    </button>
+                </div>
+                
+
+                <!-- Contenedor de etiquetas (oculto inicialmente) -->
+                <div id="tagInputContainer" class="d-none mt-2">
+                    <input type="text" id="tagInput" class="form-control" placeholder="Escribe una etiqueta y presiona Enter" style="background-color: #1F1F1F; color: white; border: none; width: 50%;" maxlength="20">
+                    <div id="tagPanel" class="mt-2 d-flex flex-wrap gap-2"></div>
+                    <small id="tagLimitMessage" class="text-warning d-none">Solo puedes agregar hasta 5 etiquetas.</small>
+                    <input type="hidden" name="tags" id="tagInputHidden">
+                </div>
+
             </div>
-            
-        </div>
-    </div>
-    <div class="d-flex justify-content-between align-items-center">
-        <button type="submit" name="post_content" class="btn btn-primary">Publicar</button>
-    </div>
-</form>
 
-<br>
-
+            <div class="d-flex justify-content-end">
+                <button type="submit" name="post_content" class="btn btn-primary">Publicar</button>
+            </div>
+        </form>
     </div>
 </div>
 
 
+
+
+
                 <!-- Menú de filtros -->
-                <div class="mb-4">
-                    <a href="{% url 'nexly' %}?filter=following" class="btn btn-outline-primary me-2{% if show_following_posts %} active{% endif %}" role="button">
-                        Publicaciones que sigo
+                <div class="mb-4 d-flex justify-content-start gap-2">
+                    <a href="{% url 'nexly' %}?filter=following" class="btn btn-outline-primary{% if show_following_posts %} active{% endif %}" role="button">
+                       Post Siguiendo
                     </a>
                     <a href="{% url 'nexly' %}" class="btn btn-outline-primary{% if not show_following_posts %} active{% endif %}" role="button">
-                        Todas las publicaciones
+                        Todos los Post
                     </a>
                 </div>
+                
 
                 <div class="posts-container">
                     {% for post in posts %}
@@ -223,26 +256,23 @@
                         </div>
                 
                         <!-- Botones alineados y ocupando todo el espacio -->
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-between mb-2">
-                        <a href="{% url 'like_post' post.id %}" class="btn btn-secondary w-100">
-                            {% if user in post.like_set.all %}
-                            <i class="fas fa-thumbs-up"></i>
-                            Like ({{ post.like_set.count }})
-                            {% else %}
-                            <i class="fas fa-thumbs-up"></i>
-                            Like ({{ post.like_set.count }})
-                            {% endif %}
-                        </a>
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            <a href="{% url 'like_post' post.id %}" class="btn btn-secondary flex-grow-1">
+                                {% if user in post.like_set.all %}
+                                <i class="fas fa-thumbs-up"></i> Like ({{ post.like_set.count }})
+                                {% else %}
+                                <i class="fas fa-thumbs-up"></i> Like ({{ post.like_set.count }})
+                                {% endif %}
+                            </a>
 
-                        <button class="btn btn-secondary w-100" onclick="toggleCommentForm({{ post.id }})">
-                            <i class="fas fa-comment"></i> Comentar
-                        </button>
-
-                        <a href="{% url 'share_post' post.id %}" class="btn btn-secondary w-100">
-                            <i class="fas fa-share"></i>
-                            Compartir
-                        </a>
-                    </div>
+                            <button class="btn btn-secondary flex-grow-1" onclick="toggleCommentForm({{ post.id }})">
+                                <i class="fas fa-comment"></i> Comentar
+                            </button>
+                        
+                            <a href="{% url 'share_post' post.id %}" class="btn btn-secondary flex-grow-1">
+                                <i class="fas fa-share"></i> Compartir
+                            </a>
+                        </div>
 
                 
                         {% if post.user == user %}
@@ -489,23 +519,63 @@ function toggleCommentForm(postId) {
         }
     
     </script>
-    <script>
-        function previewImage(event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            const imagePreviewContainer = document.getElementById('imagePreviewContainer');
-            const imagePreview = document.getElementById('imagePreview');
-    
-            if (file) {
-                reader.onload = function(e) {
-                    imagePreview.src = e.target.result;
-                    imagePreviewContainer.classList.remove('d-none');
-                };
-                reader.readAsDataURL(file);
-            } else {
-                imagePreview.src = '';
-                imagePreviewContainer.classList.add('d-none');
+    <!-- Script para manejar la adición de etiquetas (con límite de 5 etiquetas) -->
+<script>
+    const maxTags = 5;
+    let tagCount = 0;
+
+    document.getElementById('showTagInputBtn').addEventListener('click', function() {
+        const tagContainer = document.getElementById('tagInputContainer');
+        tagContainer.classList.toggle('d-none');
+    });
+
+    document.getElementById('tagInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const tagText = this.value.trim();
+            if (tagText && tagCount < maxTags) {
+                addTag(tagText);
+                this.value = '';
+            } else if (tagCount >= maxTags) {
+                document.getElementById('tagLimitMessage').classList.remove('d-none');
             }
+            updateHiddenTagInput(); // Actualiza el input oculto después de agregar una etiqueta
         }
-    </script>
+    });
+
+    function addTag(tagText) {
+        const tagPanel = document.getElementById('tagPanel');
+        const tagElement = document.createElement('div');
+        tagElement.className = 'tag-badge';
+
+        const removeIcon = document.createElement('span');
+        removeIcon.className = 'tag-remove';
+        removeIcon.innerHTML = '&times;';
+        removeIcon.addEventListener('click', function() {
+            tagElement.remove();
+            tagCount--;
+            if (tagCount < maxTags) {
+                document.getElementById('tagLimitMessage').classList.add('d-none');
+            }
+            updateHiddenTagInput(); // Actualiza el input oculto después de eliminar una etiqueta
+        });
+
+        tagElement.textContent = tagText;
+        tagElement.appendChild(removeIcon);
+        tagPanel.appendChild(tagElement);
+        tagCount++;
+    }
+
+    // Función para actualizar el input oculto con las etiquetas actuales
+    function updateHiddenTagInput() {
+        const tags = Array.from(document.querySelectorAll('#tagPanel .tag-badge'))
+                          .map(tag => tag.textContent.replace('×', '').trim());
+        document.getElementById('tagInputHidden').value = tags.join(',');
+    }
+
+    // Asegúrate de que el input oculto se actualice antes de enviar el formulario
+    document.querySelector('.post-form').addEventListener('submit', updateHiddenTagInput);
+</script>
+   <!-- Mostrar y eliminar img/videos -->
+   <script src="{% static 'js/PreviewImages.js' %}"></script>
 {% endblock %}

@@ -8,7 +8,7 @@ from .forms import PostForm, CommentForm, BannerUploadForm, ProfilePictureUpload
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.shortcuts import redirect
-from .models import FollowRequest, Story
+from .models import FollowRequest, Story, EtiquetasPost
 from django.db.models import Count
 from django.urls import reverse
 from django.views.decorators.http import require_POST
@@ -16,6 +16,10 @@ from django.db.models import Q
 import random
 from django.contrib.auth.models import User
 from .models import Message
+from django.templatetags.static import static  
+from .models import User  
+from django.shortcuts import render, get_object_or_404
+from django.template.loader import render_to_string
 
 
 def login_view(request):
@@ -85,16 +89,25 @@ def nexly_view(request):
             if form.is_valid():
                 post = form.save(commit=False)
                 post.user = request.user
-                
+
                 # Guardar la imagen o video si están presentes
                 if 'photo' in request.FILES:
                     post.photo = request.FILES['photo']
                 elif 'video' in request.FILES:
                     post.video = request.FILES['video']
-                
+
                 post.save()
+
+                # Obtener etiquetas desde el formulario (suponiendo que se envían en un campo llamado 'tags')
+                etiquetas = request.POST.get('tags', '').split(',')
+                for etiqueta in etiquetas:
+                    etiqueta = etiqueta.strip()
+                    if etiqueta:  # Evita etiquetas vacías
+                        EtiquetasPost.objects.create(post=post, etiqueta=etiqueta)
+
                 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                     return JsonResponse({'status': 'success', 'post_id': post.id})
+                
                 return redirect('nexly')
         
         elif 'comment_content' in request.POST:
@@ -205,10 +218,6 @@ def edit_post(request, post_id):
             return JsonResponse({'content': post.content})
     return JsonResponse({'error': 'Unauthorized'}, status=403)
 
-from django.shortcuts import render, get_object_or_404
-from .models import User  # Importa el modelo de usuario si es necesario
-
-from django.templatetags.static import static  # Importar el tag static
 
 @login_required
 def profile_view(request, nombre):
@@ -217,28 +226,26 @@ def profile_view(request, nombre):
     
     # Obtener las publicaciones del usuario
     posts = Post.objects.filter(user=user).order_by('-created_at')
-    
-    # Contador de solicitudes aceptadas (seguidores)
+
+    # Contadores de seguimiento y publicaciones
     accepted_follow_requests_count = FollowRequest.objects.filter(
         to_user=user, is_accepted=True).count()
-
-    # Contador de seguidos por el usuario actual
     followed_count = FollowRequest.objects.filter(
         from_user=request.user, is_accepted=True).count()
-
-    # Contador de publicaciones del usuario específico
     posts_count = posts.count()
 
-    # Verificar si el usuario actual ya sigue al perfil y la solicitud ha sido aceptada
+    # Verificar si el usuario actual sigue al perfil y si la solicitud ha sido aceptada
     is_following = FollowRequest.objects.filter(
         from_user=request.user, to_user=user, is_accepted=True).exists()
 
     if request.method == 'POST':
         if 'post_content' in request.POST:
-            form = PostForm(request.POST)
+            form = PostForm(request.POST, request.FILES)
             if form.is_valid():
                 post = form.save(commit=False)
                 post.user = request.user
+                post.image = request.FILES.get('image')  # Manejar imagen
+                post.video = request.FILES.get('video')  # Manejar video
                 post.save()
                 return redirect('profile', nombre=nombre)
         elif 'comment_content' in request.POST:
@@ -276,7 +283,7 @@ def profile_view(request, nombre):
     profile_picture_url = user.profile_picture.url if user.profile_picture else None
     banner_picture_url = user.banner_picture.url if user.banner_picture else None
 
-    # Agregar la URL de la imagen de banner por defecto
+    # URL de la imagen de banner por defecto
     default_banner_url = static('images/default-banner.jpg')
 
     context = {
@@ -296,6 +303,7 @@ def profile_view(request, nombre):
         'default_banner_url': default_banner_url,
     }
     return render(request, 'profile.html', context)
+
 
 @login_required
 def send_follow_request(request, user_id):
@@ -357,6 +365,7 @@ def follow_requests(request):
         'follow_requests': follow_requests,
         'recommended_users': recommended_users
     })
+
 @require_POST
 @login_required
 def clear_follow_request_message(request):

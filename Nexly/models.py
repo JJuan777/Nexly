@@ -80,6 +80,13 @@ class Post(models.Model):
         else:
             days = diff.days
             return f"hace {days} días"
+        
+class EtiquetasPost(models.Model):
+    etiqueta = models.CharField(max_length=50)
+    post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='etiquetas')
+
+    def __str__(self):
+        return self.etiqueta
 
 class Like(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
