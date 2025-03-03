@@ -69,7 +69,7 @@ http://127.0.0.1:8000/admin/
    ```
 
 ## 📧 Contact
-For any questions or suggestions, you can contact me at **[juanbalderramasan@gmail.com](mailto:juanbalderramasan@gmail.com)** or visit my profile on **[GitHub](https://github.com/JJuan777)**.
+For any questions or suggestions, visit my profile on **[GitHub](https://github.com/JJuan777)**.
 
 ---
 **© 2025 - Nexly Social Network** 🚀
