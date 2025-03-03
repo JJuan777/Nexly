@@ -63,7 +63,7 @@ http://127.0.0.1:8000/admin/
    ```sh
    python manage.py runserver
    ```
-6. **Open in Browser**
+6. **Open the Application in Browser**
    ```
    http://127.0.0.1:8000/
    ```
